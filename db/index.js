@@ -42,12 +42,10 @@ const get = () => {
 */
 const close = (done) => {
   if (state.db) {
-    state.db.close((err, result) => {
-      if (err) { return done(err); }
-      state.db   = null;
-      state.mode = null;
-      done();
-    });
+    state.db.close();
+    state.db   = null;
+    state.mode = null;
+    done();
   }
 
 };
