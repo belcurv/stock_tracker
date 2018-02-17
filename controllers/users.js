@@ -5,7 +5,7 @@
 const router = require('express').Router();
 // const db     = require('../db');
 
-/* ================================ ROUTES ================================= */
+/* ========================== ROUTE CONTROLLERS ============================ */
 
 /**
  * Delete a user a account and all associated portfolios.

@@ -5,7 +5,18 @@
 const router = require('express').Router();
 const db = require('../db');
 
-/* ================================ ROUTES ================================= */
+
+/* ============================== MIDDLEWARE =============================== */
+
+/**
+ * Verify JWT token
+*/
+// const verifyJWT = (req, res, next) => {
+
+// };
+
+
+/* ========================== ROUTE CONTROLLERS ============================ */
 
 /**
  * Get all user's portfolios
