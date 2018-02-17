@@ -1,8 +1,11 @@
+'use strict';
+
 /* ================================= SETUP ================================= */
 
+require('dotenv').config();
 const express    = require('express');
 const morgan     = require('morgan');
-// const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const app        = express();
 const db         = require('./db');
 const port       = process.env.PORT || 3000;
@@ -10,8 +13,14 @@ const port       = process.env.PORT || 3000;
 
 /* ================================ CONFIG ================================= */
 
+// enable logger
 app.use(morgan('dev'));
 
+// enable http request body parsing
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// routes
 app.use('/auth',  require('./controllers/auth'));
 app.use('/users', require('./controllers/users'));
 app.use('/api',   require('./controllers/portfolios'));
