@@ -2,7 +2,7 @@
 
 const express    = require('express');
 const morgan     = require('morgan');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const app        = express();
 const db         = require('./db');
 const port       = process.env.PORT || 3000;
@@ -10,8 +10,11 @@ const port       = process.env.PORT || 3000;
 
 /* ================================ CONFIG ================================= */
 
-app.use('/users',      require('./controllers/users'));
-app.use('/portfolios', require('./controllers/portfolios'));
+app.use(morgan('dev'));
+
+app.use('/auth',  require('./controllers/auth'));
+app.use('/users', require('./controllers/users'));
+app.use('/api',   require('./controllers/portfolios'));
 
 
 /* ========================== CONNECT TO DATABASE ========================== */
