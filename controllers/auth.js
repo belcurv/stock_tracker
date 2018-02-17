@@ -34,7 +34,7 @@ const generateJwt = async ({ _id, username }) => {
  * Expects: username and password from http POST request body
  * Returns: JWT (String)
 */
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
 
   // fail if missing required credentials
   if (!req.body.username || !req.body.password) {
@@ -68,7 +68,7 @@ router.post('/register', async (req, res) => {
       _id      : result.ops[0]._id
     }))
     .then(token => res.status(200).json(token))
-    .catch(err  => res.status(500).json(err));
+    .catch(err  => next(err));
   
 });
 
@@ -80,7 +80,7 @@ router.post('/register', async (req, res) => {
  * Expects: username and password from http POST request body
  * Returns: JWT (String)
 */
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   // fail if missing required credentials
   if (!req.body.username || !req.body.password) {
     return res.status(500).json({ message: 'Missing required fields' });
@@ -108,7 +108,7 @@ router.post('/login', async (req, res) => {
   // generate and return a JWT
   generateJwt(user)
     .then(token => res.status(200).json(token))
-    .catch(err  => res.status(500).json(err));
+    .catch(err  => next(err));
 
 });
 
