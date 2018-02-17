@@ -25,6 +25,20 @@ app.use('/auth',  require('./controllers/auth'));
 app.use('/users', require('./controllers/users'));
 app.use('/api',   require('./controllers/portfolios'));
 
+// generic error handler
+app.use(function (err, req, res, next) {
+  console.log('Error: ' + err.message);
+
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).send('invalid or missing token');
+  } else {
+    res.status(500).send('Something broke');
+  }
+
+  next();
+
+});
+
 
 /* ========================== CONNECT TO DATABASE ========================== */
 
