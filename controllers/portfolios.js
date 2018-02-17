@@ -3,7 +3,8 @@
 /* ================================= SETUP ================================= */
 
 const router = require('express').Router();
-const db = require('../db');
+const jwt    = require('jsonwebtoken');
+const db     = require('../db');
 
 
 /* ============================== MIDDLEWARE =============================== */
@@ -11,10 +12,33 @@ const db = require('../db');
 /**
  * Verify JWT token
 */
-// const verifyJWT = (req, res, next) => {
+const verifyJWT = (req, res, next) => {
+  const token  = req.headers.authorization;
+  const secret = process.env.JWT_SECRET;
 
-// };
+  // fail if missing required pieces
+  if (!token || !secret) {
+    return next(new Error('Missing components for JWT verification'));
+  }
 
+  jwt.verify(token, secret, (err, decoded) => {
+    if (err) {
+      return next(new Error(err.message));
+    }
+
+    if (decoded.user._id && decoded.user.username) {
+      // OK. Set req.user
+      req.user = decoded.user;
+      next();
+    } else {
+      return next(new Error('Missing required user attributes'));
+    }
+
+  });
+  
+};
+
+router.use(verifyJWT);
 
 /* ========================== ROUTE CONTROLLERS ============================ */
 
@@ -22,16 +46,17 @@ const db = require('../db');
  * Get all user's portfolios
  * Example: GET >> /
  * Secured: yes
- * Expects: username and _id from valid JWT
+ * Expects: user's _id from valid JWT
  * Returns: JSON array of portfolio objects
 */
-router.get('/portfolios', (req, res) => {
+router.get('/portfolios', (req, res, next) => {
   const portfolios = db.get().collection('portfolios');
+  const target = { owner: req.user._id };
 
-  portfolios.find()
+  portfolios.find(target)
     .toArray()
     .then(docs => res.status(200).json(docs))
-    .catch(err => res.status(500).json(err));
+    .catch(err => next(err));
   
 });
 
