@@ -2,10 +2,9 @@
 
 /* ================================= SETUP ================================= */
 
-const router = require('express').Router();
-const jwt    = require('jsonwebtoken');
-const db     = require('../db');
-
+const router     = require('express').Router();
+const jwt        = require('jsonwebtoken');
+const Portfolios = require('../models/portfolios');
 
 /* ============================== MIDDLEWARE =============================== */
 
@@ -44,62 +43,81 @@ router.use(verifyJWT);
 
 /**
  * Get all user's portfolios
- * Example: GET >> /
+ * Example: GET >> /api/portfolios
  * Secured: yes
  * Expects: user's _id from valid JWT
  * Returns: JSON array of portfolio objects
 */
 router.get('/portfolios', (req, res, next) => {
-  const portfolios = db.get().collection('portfolios');
-  const target = { owner: req.user._id };
-
-  portfolios.find(target)
-    .toArray()
-    .then(docs => res.status(200).json(docs))
+  Portfolios.getAll(req.user._id)
+    .then(portfolios => res.status(200).json(portfolios))
     .catch(err => next(err));
   
 });
 
 
 /**
- * Get a user's specific portfolio
- * Example: GET >> //65a4sd654asd645asd
+ * Get a specific portfolio belonging to a user
+ * Example: GET >> /api/portfolios/65a4sd654asd645asd
  * Secured: yes
- * Expects: portfolio _id from req params, username and _id from valid JWT
+ * Expects: portfolio _id from req params, user _id from JWT
  * Returns: JSON portfolio objects
 */
-router.get('/portfolios/:id', (req, res) => {
-  res.status(200).json({ message: 'router is working OK!' });
+router.get('/portfolios/:id', (req, res, next) => {
+  Portfolios.getOne(req.user._id, req.params.id)
+    .then(portfolio => res.status(200).json(portfolio))
+    .catch(err => next(err));
 });
 
 
 /**
  * Create a new portfolio
- * Example: POST >> //
+ * Example: POST >> /api/portfolios
  * Secured: yes
- * Expects: portfolio name from req body, username and _id from valid JWT
+ * Expects: portfolio name from req body, user _id from JWT
  * Returns: JSON portfolio object
 */
-router.post('/portfolios', (req, res) => {
-  res.status(200).json({ message: 'router is working OK!' });
+router.post('/portfolios', (req, res, next) => {
+  const newPortfolio = {
+    owner : req.user._id,
+    name  : req.body.name,
+    notes : req.body.notes
+  };
+  
+  Portfolios.create(newPortfolio)
+    .then(result => res.status(200).json(result))
+    .catch(err => next(err));
+  
 });
 
 
 /**
  * Update a user's portfolio
- * Example: PUT >> //564asd654asd56a4sd
+ * Example: PUT >> /api/portfolios/564asd654asd56a4sd
  * Secured: yes
- * Expects: portfolio _id from req params, updates from req body, username and _id from valid JWT
+ * Expects: portfolio _id from req params, updates from req body, user _id from JWT
  * Returns: JSON portfolio object
 */
-router.put('/portfolios/:id', (req, res) => {
-  res.status(200).json({ message: 'router is working OK!' });
+router.put('/portfolios/:id', (req, res, next) => {
+  const filter = {
+    owner : req.user._id,
+    _id   : req.params.id
+  };
+  const updates = {
+    name  : req.body.name,
+    notes : req.body.notes
+  };
+
+  Portfolios.update(filter, updates)
+    .then(result => res.status(200).json(result))
+    .catch(err   => next(err));
+
 });
 
 
 /**
  * Delete a user's portfolio
- * Example: DELETE >> /api/portfolio/564asd654asd56a4sd
+ * Example: DELETE >> /api/portfolios/564asd654asd56a4sd
  * Secured: yes
  * Expects: portfolio _id from req params, username and _id from valid JWT
  * Returns: JSON success message
@@ -111,7 +129,7 @@ router.delete('/portfolios/:id', (req, res) => {
 
 /**
  * Add holding to portfolio
- * Example: POST >> /api/portfolio/564asd654asd56a4sd/holdings
+ * Example: POST >> /api/portfolios/564asd654asd56a4sd/holdings
  * Secured: yes
  * Expects: portfolio _id from req params, ticker and qty from req body, username and _id from valid JWT
  * Returns: JSON portfolio object
@@ -123,7 +141,7 @@ router.post('/portfolios/:id/holdings', (req, res) => {
 
 /**
  * Update a holding in a user's portfolio
- * Example: PUT >> /api/portfolio/564asd654asd56a4sd/holdings/65asd65a4sd564asd564
+ * Example: PUT >> /api/portfolios/564asd654asd56a4sd/holdings/65asd65a4sd564asd564
  * Secured: yes
  * Expects: portfolio _id & holding _id from req params, qty from req body, username and _id from valid JWT
  * Returns: JSON portfolio object
@@ -135,7 +153,7 @@ router.put('/portfolios/:id/holdings/:id', (req, res) => {
 
 /**
  * Delete a holding from a user's portfolio
- * Example: DELETE >> /api/portfolio/564asd654asd56a4sd/holdings/65asd65a4sd564asd564
+ * Example: DELETE >> /api/portfolios/564asd654asd56a4sd/holdings/65asd65a4sd564asd564
  * Secured: yes
  * Expects: portfolio _id & holding _id from req params, username and _id from valid JWT
  * Returns: JSON success message
