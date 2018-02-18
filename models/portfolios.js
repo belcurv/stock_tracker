@@ -53,9 +53,18 @@ const getOne = (owner, _id) => {
  * @returns  {Object}           Promise object + new portfolio
 */
 const create = ({owner, name, notes}) => {
+  if (!owner) { throw new Error('Portfolio "owner" is required.'); }
+  if (!name)  { throw new Error('Portfolio "name" is required.'); }
+
+  notes = notes || '';
+
   const collection = db.get().collection('portfolios');
-  const now = Date.now();
-  const document   = { owner, name, notes, createdAt: now, updatedAt: now };
+  const now        = Date.now();
+  const document   = { owner, name, notes };
+  
+  document.holdings  = [];
+  document.createdAt = now;
+  document.updatedAt = now;
 
   return collection
     .insertOne(document)
@@ -98,7 +107,7 @@ const update = ({owner, _id}, {name, notes}) => {
  * @param    {String}   owner   User _id
  * @param    {String}   _id     Portfolio _id
 */
-const del = (owner, _id) => {
+const deletePortfolio = (owner, _id) => {
   const collection = db.get().collection('portfolios');
   const target     = {
     _id   : ObjectID(_id),
@@ -119,8 +128,32 @@ const del = (owner, _id) => {
  * @param    {Number}   qty      Qty of shares owned
  * @returns
 */
-const addHolding = () => {
-  
+const addHolding = ({owner, _id}, {ticker, qty}) => {
+  const collection = db.get().collection('portfolios');
+  const now = Date.now();
+  const filter     = {
+    _id   : ObjectID(_id),
+    owner : owner
+  };
+  const updates    = {
+    '$push': {
+      holdings: {
+        _id: ObjectID(),
+        ticker,
+        qty,
+        createdAt: now,
+        updatedAt: now
+      }
+    }
+  };
+  const options    = {
+    returnOriginal: false
+  };
+
+  return collection
+    .findOneAndUpdate(filter, updates, options)
+    .then(result => result.value);
+
 };
 
 
@@ -156,7 +189,7 @@ module.exports = {
   getOne,
   create,
   update,
-  del,
+  deletePortfolio,
   addHolding,
   updateHolding,
   deleteHolding
