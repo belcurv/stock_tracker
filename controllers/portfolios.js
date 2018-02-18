@@ -119,11 +119,15 @@ router.put('/portfolios/:id', (req, res, next) => {
  * Delete a user's portfolio
  * Example: DELETE >> /api/portfolios/564asd654asd56a4sd
  * Secured: yes
- * Expects: portfolio _id from req params, username and _id from valid JWT
+ * Expects: portfolio _id from req params, user _id from valid JWT
  * Returns: JSON success message
 */
-router.delete('/portfolios/:id', (req, res) => {
-  res.status(200).json({ message: 'router is working OK!' });
+router.delete('/portfolios/:id', (req, res, next) => {
+
+  Portfolios.deletePortfolio(req.user._id, req.params._id)
+    .then(result => res.status(200).json(result))
+    .catch(err => next(err));
+
 });
 
 
@@ -134,8 +138,22 @@ router.delete('/portfolios/:id', (req, res) => {
  * Expects: portfolio _id from req params, ticker and qty from req body, username and _id from valid JWT
  * Returns: JSON portfolio object
 */
-router.post('/portfolios/:id/holdings', (req, res) => {
-  res.status(200).json({ message: 'router is working OK!' });
+router.post('/portfolios/:id/holdings', (req, res, next) => {
+
+  const filter = {
+    owner  : req.user._id,
+    _id    : req.params.id
+  };
+  
+  const updates = {
+    ticker : req.body.ticker,
+    qty    : req.body.qty
+  };
+
+  Portfolios.addHolding(filter, updates)
+    .then(result => res.status(200).json(result))
+    .catch(err   => next(err));
+
 });
 
 
