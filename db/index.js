@@ -18,9 +18,9 @@ const state = {
 const connect = (url, done) => {
   if (state.db) { return done(); }
 
-  MongoClient.connect(url, (err, db) => {
+  MongoClient.connect(url, (err, client) => {
     if (err) { return done(err); }
-    state.db = db;
+    state.db = client.db('stocktracker');
     done();
   });
 
