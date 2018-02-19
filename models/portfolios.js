@@ -2,6 +2,7 @@
 
 /* ================================= SETUP ================================= */
 
+const sanitize = require('../utils/sanitizeMongoQuery');
 const ObjectID = require('mongodb').ObjectID;
 const db       = require('../db');
 
@@ -19,7 +20,7 @@ const getAll = (owner) => {
 
   return collection
     .find(target)
-    // .sort({ 'updatedAt' : -1 })
+    .sort({ 'updatedAt' : -1 })
     .toArray();
 
 };
@@ -34,8 +35,8 @@ const getAll = (owner) => {
 const getOne = (owner, _id) => {
   const collection = db.get().collection('portfolios');
   const target     = {
-    _id   : ObjectID(_id),
-    owner : owner
+    _id : ObjectID(_id),
+    owner
   };
   
   return collection
@@ -53,18 +54,20 @@ const getOne = (owner, _id) => {
  * @returns  {Object}           Promise object + new portfolio
 */
 const create = ({owner, name, notes}) => {
-  if (!owner) { throw new Error('Portfolio "owner" is required.'); }
-  if (!name)  { throw new Error('Portfolio "name" is required.'); }
 
   notes = notes || '';
 
   const collection = db.get().collection('portfolios');
   const now        = Date.now();
-  const document   = { owner, name, notes };
-  
-  document.holdings  = [];
-  document.createdAt = now;
-  document.updatedAt = now;
+
+  const document   = {
+    owner,
+    name      : sanitize(name).toString().trim(),
+    notes     : sanitize(notes).toString().trim(),
+    holdings  : [],
+    createdAt : now,
+    updatedAt : now
+  };
 
   return collection
     .insertOne(document)
@@ -79,24 +82,24 @@ const create = ({owner, name, notes}) => {
  * @param    {String}   _id     Portfolio _id
  * @param    {String}   name    Portfolio name
  * @param    {String}   notes   Notes about the portfolio
+ * @returns  {Object}           Updated portfolio
 */
 const update = ({owner, _id}, {name, notes}) => {
   const collection = db.get().collection('portfolios');
-  const filter     = {
+  
+  const filter = {
     _id   : ObjectID(_id),
     owner : owner
   };
-  const updates    = { '$set': {
-    name      : name,
-    notes     : notes,
-    updatedAt : Date.now()
-  }};
-  const options    = {
-    returnOriginal: false
-  };
+  
+  const updates = { updatedAt: Date.now() };
+  if (name)  { updates.name  = sanitize(name).toString().trim();  }
+  if (notes) { updates.notes = sanitize(notes).toString().trim(); }
+  
+  const options = { returnOriginal: false };
 
   return collection
-    .findOneAndUpdate(filter, updates, options)
+    .findOneAndUpdate(filter, { '$set': updates }, options)
     .then(result => result.value);
 
 };
@@ -121,34 +124,59 @@ const deletePortfolio = (owner, _id) => {
 
 
 /**
+ * Check if a portfolio has a specific holding
+ * @param    {String}   owner    User _id
+ * @param    {String}   _id      Portfolio _id
+ * @param    {String}   ticker   Holding's ticker symbol
+ * @returns  {Boolean}           True if portfolio contains specified holding
+*/
+const hasHolding = (owner, _id, ticker) => {
+  const collection = db.get().collection('portfolios');
+
+  const target = {
+    _id               : ObjectID(_id),
+    owner             : owner,
+    'holdings.ticker' : sanitize(ticker).toString().trim()
+  };
+  
+  return collection
+    .find(target)
+    .count()
+    .then(count => count > 0 ? true : false);
+
+};
+
+
+/**
  * Add holding to portfolio
  * @param    {String}   owner    User _id
  * @param    {String}   _id      Portfolio _id
  * @param    {String}   ticker   Holding's ticker symbol
  * @param    {Number}   qty      Qty of shares owned
- * @returns
+ * @returns  {Object}            Updated portfolio
 */
 const addHolding = ({owner, _id}, {ticker, qty}) => {
   const collection = db.get().collection('portfolios');
   const now = Date.now();
-  const filter     = {
+
+  const filter = {
     _id   : ObjectID(_id),
     owner : owner
   };
-  const updates    = {
+  
+  const updates = {
     '$push': {
-      holdings: {
-        _id: ObjectID(),
-        ticker,
-        qty,
-        createdAt: now,
-        updatedAt: now
+      holdings : {
+        _id       : ObjectID(),
+        ticker    : sanitize(ticker),
+        createdAt : now,
+        updatedAt : now,
+        qty
       }
     }
   };
-  const options    = {
-    returnOriginal: false
-  };
+  
+  const options = { returnOriginal: false };
 
   return collection
     .findOneAndUpdate(filter, updates, options)
@@ -160,24 +188,65 @@ const addHolding = ({owner, _id}, {ticker, qty}) => {
 /**
  * Update a holding in a user's portfolio
  * @param    {String}   owner    User _id
- * @param    {String}   _id      Portfolio _id
- * @param    {String}   ticker   Holding's ticker symbol
+ * @param    {String}   pfloId   Portfolio _id
+ * @param    {String}   hldgId   Holding _id
  * @param    {Number}   qty      Qty of shares owned
- * @returns
+ * @returns  {Object}            Updated portfolio object
 */
-const updateHolding = () => {
-  
+const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
+
+  const collection = db.get().collection('portfolios');
+
+  const filter = {
+    _id: ObjectID(pfloId),
+    owner,
+    'holdings._id': ObjectID(hldgId)
+  };
+
+  const updates = {
+    '$set': {
+      'holdings.$.qty': qty,
+      'holdings.$.updatedAt': Date.now()
+    }
+  };
+
+  const options = { returnOriginal: false };
+
+  return collection
+    .findOneAndUpdate(filter, updates, options)
+    .then(result => result.value);
+
 };
 
 
 /**
  * Delete a holding from a user's portfolio
  * @param    {String}   owner    User _id
- * @param    {String}   _id      Portfolio _id
- * @param    {String}   ticker   Holding's ticker symbol
- * @returns
+ * @param    {String}   pfloId   Portfolio _id
+ * @param    {String}   hldgId   Holding _id
+ * @returns  {Object}            Updated portfolio object
 */
-const deleteHolding = () => {
+const deleteHolding = ({ owner, pfloId, hldgId }) => {
+
+  const collection = db.get().collection('portfolios');
+
+  const filter = {
+    _id: ObjectID(pfloId),
+    owner,
+    'holdings._id': ObjectID(hldgId)
+  };
+
+  const updates = {
+    '$pull': {
+      holdings: { _id: ObjectID(hldgId) }
+    }
+  };
+
+  const options = { returnOriginal: false };
+
+  return collection
+    .findOneAndUpdate(filter, updates, options)
+    .then(result => result.value);
   
 };
 
@@ -190,6 +259,7 @@ module.exports = {
   create,
   update,
   deletePortfolio,
+  hasHolding,
   addHolding,
   updateHolding,
   deleteHolding
