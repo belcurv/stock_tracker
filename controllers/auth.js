@@ -5,7 +5,7 @@
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
 const router = require('express').Router();
-const db     = require('../db');
+const Users  = require('../models/users');
 
 
 /* ================================= UTILS ================================= */
@@ -31,38 +31,39 @@ const generateJwt = async ({ _id, username }) => {
  * New user registration.
  * Example: POST >> /auth/register
  * Secured: No
- * Expects: username and password from http POST request body
+ * Expects: username & passwords from http POST request body
  * Returns: JWT (String)
 */
 router.post('/register', async (req, res, next) => {
 
-  // fail if missing required credentials
-  if (!req.body.username || !req.body.password) {
-    return res.status(500).json({ message: 'Missing required fields' });
+  if (!req.body.username || !req.body.password1 || !req.body.password2) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  // fail if passwords do not match
+  if (req.body.password1 !== req.body.password2) {
+    return res.status(400).json({ message: 'Passwords must match' });
   }
 
   // trim inputs
-  const username = req.body.username.trim();
-  const password = req.body.password.trim();
-  
-  // grab db connection object
-  const users = db.get().collection('users');
+  const newUser = {
+    username: req.body.username.trim()
+  };
+
+  const password = req.body.password1.trim();
 
   // check for existing user with same username
-  const user = await users.findOne({ username });
+  const user = await Users.usernameExists(newUser.username);
   if (user) {
-    return res.status(500).json({ message: 'username already in use' });
+    return res.status(500).json({ message: 'username already taken' });
   }
-
-  // init new user object with username
-  const newUser = { username };
 
   // generate salt
   const salt = await bcrypt.genSalt(10);
   // set newUser password to salted hash
   newUser.password = await bcrypt.hash(password, salt);
 
-  users.insertOne(newUser)
+  Users.createUser(newUser)
     .then(result => generateJwt({
       username : result.ops[0].username,
       _id      : result.ops[0]._id
@@ -81,7 +82,7 @@ router.post('/register', async (req, res, next) => {
  * Returns: JWT (String)
 */
 router.post('/login', async (req, res, next) => {
-  // fail if missing required credentials
+
   if (!req.body.username || !req.body.password) {
     return res.status(500).json({ message: 'Missing required fields' });
   }
@@ -90,11 +91,8 @@ router.post('/login', async (req, res, next) => {
   const username = req.body.username.trim();
   const password = req.body.password.trim();
 
-  // grab db connection object
-  const users = db.get().collection('users');
-
   // check for a user
-  const user = await users.findOne({ username });
+  const user = await Users.getUser(username);
   if (!user) {
     return res.status(404).json({ message: 'No user with that username' });
   }
