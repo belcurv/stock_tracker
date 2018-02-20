@@ -2,27 +2,11 @@
 
 /* ================================= SETUP ================================= */
 
-const bcrypt = require('bcryptjs');
-const jwt    = require('jsonwebtoken');
+const bcrypt      = require('bcryptjs');
+const generateJwt = require('../utils/generate-jwt');
+
 const router = require('express').Router();
 const Users  = require('../models/users');
-
-
-/* ================================= UTILS ================================= */
-
-/**
- * Generate a signed JWT token
- * @param    {Object}   user._id        User's _id
- * @param    {Object}   user.username   User's username
- * @returns  {String}                   Signed JWT token
-*/
-const generateJwt = async ({ _id, username }) => {
-  return await jwt.sign(
-    { user: { _id, username } },        // payload
-    process.env.JWT_SECRET,             // secret
-    { expiresIn: '7d' }                 // options
-  );
-};
 
 
 /* ========================== ROUTE CONTROLLERS ============================ */
