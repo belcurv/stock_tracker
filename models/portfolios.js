@@ -15,6 +15,11 @@ const db       = require('../db');
  * @returns  {Object}           Promise object + array of portfolios
 */
 const getAll = (owner) => {
+
+  if (!owner) {
+    return Promise.resolve([]);
+  }
+
   const collection = db.get().collection('portfolios');
   const target     = { owner };
 
