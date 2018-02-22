@@ -42,7 +42,7 @@ app.use(function (err, req, res, next) {
 
 /* ========================== CONNECT TO DATABASE ========================== */
 
-db.connect('mongodb://localhost:27017/', 'stocktracker', (err) => {
+db.connect((err) => {
   if (err) {
     // bail
     console.log('Unable to connect to MongoDB');
