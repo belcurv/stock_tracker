@@ -6,7 +6,8 @@ const config       = require('./config')[environment];
 
 // init module-scope state container
 const state = {
-  db : null
+  db     : null,
+  client : null
 };
 
 
