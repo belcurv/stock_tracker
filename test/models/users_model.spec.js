@@ -1,4 +1,4 @@
-/* globals describe before after it */
+/* globals describe before beforeEach after it */
 
 'use strict';
 
@@ -11,7 +11,6 @@ const Users      = require('../../models/users');
 // dummy user
 const testUsername  = 'Ql8n4yyshA%E7';
 const testPassword1 = 'testdummypass1';
-const testPassword2 = 'testdummypass2';
 
 
 /* ================================= TESTS ================================= */
@@ -19,30 +18,41 @@ const testPassword2 = 'testdummypass2';
 describe('users model', function() {
 
   before(done => {
-    db.connect('mongodb://localhost:27017/stocktracker', () => {
-      const collection = db.get().collection('users');
-      const doc = {
-        username  : testUsername,
-        password  : testPassword1,
-        createdAt : Date.now(),
-        updatedAt : Date.now()
-      };
-      collection.insertOne(doc, () => {
+    db.connect('mongodb://localhost:27017/', 'stocktracker', (err) => {
+      if (err) {
+        console.log('Unable to connect to MongoDB', err);
+        process.exit(1);
+      } else {
+        done();
+      }
+    });
+  });
+
+
+  after(done => {
+    const collection = db.get().collection('users');
+    collection.deleteMany({ username: testUsername }, () => {
+      db.close(function() {
         done();
       });
     });
   });
 
-  after(done => {
-    const collection = db.get().collection('users');
-    // console.log('after collection', collection);
-    collection.deleteMany({ username: testUsername }, () => {
-      done();
-    });
-  });
-
 
   describe('.usernameExists()', () => {
+
+    beforeEach(done => {
+      const collection = db.get().collection('users');
+      const doc = {
+        username: testUsername,
+        password: testPassword1,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      collection.insertOne(doc, () => {
+        done();
+      });
+    });
 
     it('should be a function', () => {
       assert.isFunction(Users.usernameExists);
@@ -65,29 +75,57 @@ describe('users model', function() {
 
   });
 
-  // describe('.createUser()', function() {
+
+  describe('.createUser()', () => {
+
+    it('should be a function', () => {
+      assert.isFunction(Users.createUser);
+    });
+
+    it('should save a user to the DB', async () => {
+      const result = await Users.createUser({
+        username: testUsername,
+        password: testPassword1
+      });
+      assert.hasAllKeys(result, [
+        '_id', 'username', 'password', 'createdAt', 'updatedAt'
+      ]);
+      assert.propertyVal(result, 'username', testUsername);
+      assert.propertyVal(result, 'password', testPassword1);
+    });
+
+  });
 
 
+  describe('.getUser()', () => {
 
-  // });
+    beforeEach(done => {
+      const collection = db.get().collection('users');
+      const doc = {
+        username: testUsername,
+        password: testPassword1,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      collection.insertOne(doc, () => {
+        done();
+      });
+    });
+
+    it('should be a function', () => {
+      assert.isFunction(Users.getUser);
+    });
+
+    it('should return a user from the DB', async () => {
+      const result = await Users.getUser(testUsername);
+      assert.equal(result.username, testUsername);
+    });
+
+    it('should return "null" if user not found in DB', async () => {
+      const result = await Users.getUser('ziggy');
+      assert.isNull(result);
+    });
+
+  });
 
 });
-
-
-
-// NEED TO TEST : createUser({ username, password })
-/**
- * Register a new user
- * @param    {String}   username    Username
- * @param    {String}   password    Hashed and salted password
- * @returns  {Object}               New user object
-*/
-
-
-
-// NEED TO TEST : getUser(username)
-/**
- * Login
- * @param    {String}   username   Username
- * @returns  {Object}              User object
- */
