@@ -4,6 +4,8 @@
 
 /* ================================= SETUP ================================= */
 
+process.env.NODE_ENV = 'testing';
+
 const db         = require('../../db/index');
 const { assert } = require('chai');
 const Users      = require('../../models/users');
@@ -18,7 +20,7 @@ const testPassword1 = 'testdummypass1';
 describe('users model', function() {
 
   before(done => {
-    db.connect('mongodb://localhost:27017/', 'stocktracker', (err) => {
+    db.connect((err) => {
       if (err) {
         console.log('Unable to connect to MongoDB', err);
         process.exit(1);
