@@ -1,6 +1,8 @@
 /* ================================= SETUP ================================= */
 
-const MongoClient = require('mongodb').MongoClient;
+const MongoClient  = require('mongodb').MongoClient;
+const environment  = process.env.NODE_ENV || 'development';
+const config       = require('./config')[environment];
 
 // init module-scope state container
 const state = {
@@ -12,16 +14,14 @@ const state = {
 
 /**
  * Connect to a specified database
- * @param   {String}    url    Database connection url
- * @param   {String}    url    Database name
  * @param   {Function}  done   Callback
 */
-const connect = (url, dbName, done) => {
+const connect = (done) => {
   if (state.db) { return done(); }
   
-  MongoClient.connect(url, (err, client) => {
+  MongoClient.connect(config.url, (err, client) => {
     if (err) { return done(err); }
-    state.db = client.db(dbName);
+    state.db = client.db(config.dbName);
     state.client = client;
     done();
   });
