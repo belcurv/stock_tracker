@@ -12,15 +12,17 @@ const state = {
 
 /**
  * Connect to a specified database
- * @param   {String}    url    Database connection path string
+ * @param   {String}    url    Database connection url
+ * @param   {String}    url    Database name
  * @param   {Function}  done   Callback
 */
-const connect = (url, done) => {
+const connect = (url, dbName, done) => {
   if (state.db) { return done(); }
-
+  
   MongoClient.connect(url, (err, client) => {
     if (err) { return done(err); }
-    state.db = client.db('stocktracker');
+    state.db = client.db(dbName);
+    state.client = client;
     done();
   });
 
@@ -41,10 +43,10 @@ const get = () => {
  * @param   {function}   done   Callback
 */
 const close = (done) => {
-  if (state.db) {
-    state.db.close();
-    state.db   = null;
-    state.mode = null;
+  if (state.client) {
+    state.client.close();
+    state.db     = null;
+    state.client = null;
     done();
   }
 

@@ -49,8 +49,8 @@ router.post('/register', async (req, res, next) => {
 
   Users.createUser(newUser)
     .then(result => generateJwt({
-      username : result.ops[0].username,
-      _id      : result.ops[0]._id
+      username : result.username,
+      _id      : result._id
     }))
     .then(token => res.status(200).json(token))
     .catch(err  => next(err));
