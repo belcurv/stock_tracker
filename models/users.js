@@ -43,7 +43,8 @@ const createUser = async ({ username, password }) => {
     updatedAt: now
   };
 
-  return collection.insertOne(newUser);
+  return collection.insertOne(newUser)
+    .then(result => result.ops[0]);
 
 };
 
