@@ -3,8 +3,9 @@
 /* ================================= SETUP ================================= */
 
 const router      = require('express').Router();
-const verifyJWT   = require('../middleware/verifyJWT');
 const Portfolios  = require('../models/portfolios');
+const verifyJWT     = require('../middleware/verifyJWT');
+const sanitizeInput = require('../middleware/sanitizeUserInput')
 
 const isOid       = require('../utils/validateObjectIds');
 const isTicker    = require('../utils/validateTickers');
@@ -34,7 +35,6 @@ router.get('/portfolios', (req, res, next) => {
     .catch(err => next(err));
   
 });
-
 
 /**
  * Get a specific portfolio belonging to a user
@@ -66,7 +66,7 @@ router.get('/portfolios/:id', (req, res, next) => {
  *    2) portfolio name from req body
  * Returns: JSON portfolio object
 */
-router.post('/portfolios', (req, res, next) => {
+router.post('/portfolios', sanitizeInput(['name', 'notes']), (req, res, next) => {
 
   if (!req.body.name) {
     return res.status(400).json({ message: 'Portfolio "name" is required.' });
@@ -97,7 +97,7 @@ router.post('/portfolios', (req, res, next) => {
  *    3) updates from req body
  * Returns: JSON portfolio object
 */
-router.put('/portfolios/:id', (req, res, next) => {
+router.put('/portfolios/:id', sanitizeInput(['name', 'notes']), (req, res, next) => {
 
   if (!isOid(req.params.id)) {
     return res.status(400).json({ message: badParamMsg });
@@ -129,7 +129,7 @@ router.put('/portfolios/:id', (req, res, next) => {
  *    2) portfolio _id from req params
  * Returns: JSON success message
 */
-router.delete('/portfolios/:id', (req, res, next) => {
+router.delete('/portfolios/:id', sanitizeInput(['id']), (req, res, next) => {
 
   if (!isOid(req.params.id)) {
     return res.status(400).json({ message: badParamMsg });
@@ -152,7 +152,7 @@ router.delete('/portfolios/:id', (req, res, next) => {
  *    3) ticker and qty from req body
  * Returns: JSON portfolio object
 */
-router.post('/portfolios/:id/holdings', async (req, res, next) => {
+router.post('/portfolios/:id/holdings', sanitizeInput(['ticker', 'qty']), async (req, res, next) => {
 
   if (!req.body.ticker || !req.body.qty) {
     return res.status(400)
@@ -204,7 +204,7 @@ router.post('/portfolios/:id/holdings', async (req, res, next) => {
  *    4) qty from req body
  * Returns: JSON portfolio object
 */
-router.put('/portfolios/:pfloId/holdings/:hldgId', (req, res, next) => {
+router.put('/portfolios/:pfloId/holdings/:hldgId', sanitizeInput(['qty']), (req, res, next) => {
 
   if (!isOid(req.params.pfloId || !isOid(req.params.hldgId))) {
     return res.status(400).json({ message: badParamMsg });
