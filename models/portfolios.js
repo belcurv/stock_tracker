@@ -12,12 +12,12 @@ const db       = require('../db');
 /**
  * Get all of a users portfolios
  * @param    {String}   owner   User _id
- * @returns  {Object}           Promise object + array of portfolios
+ * @returns  {Object}           Promise + array of portfolios
 */
 const getAll = (owner) => {
 
-  if (!owner) {
-    return Promise.resolve([]);
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid owner `_id`');
   }
 
   const collection = db.get().collection('portfolios');
@@ -35,9 +35,18 @@ const getAll = (owner) => {
  * Get one portfolio
  * @param    {String}   owner   User _id
  * @param    {String}   _id     Portfolio _id
- * @returns  {Object}           Promise object + portfolio
+ * @returns  {Object}           Promise + portfolio
  */
 const getOne = (owner, _id) => {
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid owner `_id`');
+  }
+
+  if (!_id || typeof _id !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+
   const collection = db.get().collection('portfolios');
   const target     = {
     _id : ObjectID(_id),
@@ -56,11 +65,23 @@ const getOne = (owner, _id) => {
  * @param    {String}   owner   User _id
  * @param    {String}   name    Portfolio name
  * @param    {String}   notes   Notes about the portfolio
- * @returns  {Object}           Promise object + new portfolio
+ * @returns  {Object}           Promise + new portfolio
 */
 const create = ({owner, name, notes}) => {
 
   notes = notes || '';
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid portfolio `owner`');
+  }
+
+  if (!name || typeof name !== 'string') {
+    return Promise.reject('missing or invalid portfolio `name`');
+  }
+
+  if (typeof notes !== 'string') {
+    return Promise.reject('Portfolio `notes` must be a string');
+  }
 
   const collection = db.get().collection('portfolios');
   const now        = Date.now();
@@ -87,7 +108,7 @@ const create = ({owner, name, notes}) => {
  * @param    {String}   _id     Portfolio _id
  * @param    {String}   name    Portfolio name
  * @param    {String}   notes   Notes about the portfolio
- * @returns  {Object}           Updated portfolio
+ * @returns  {Object}           Promise + updated portfolio
 */
 const update = ({owner, _id}, {name, notes}) => {
   const collection = db.get().collection('portfolios');
@@ -114,6 +135,7 @@ const update = ({owner, _id}, {name, notes}) => {
  * Delete a user's portfolio
  * @param    {String}   owner   User _id
  * @param    {String}   _id     Portfolio _id
+ * @returns  {Object}           Promise
 */
 const deletePortfolio = (owner, _id) => {
   const collection = db.get().collection('portfolios');
@@ -158,7 +180,7 @@ const hasHolding = (owner, _id, ticker) => {
  * @param    {String}   _id      Portfolio _id
  * @param    {String}   ticker   Holding's ticker symbol
  * @param    {Number}   qty      Qty of shares owned
- * @returns  {Object}            Updated portfolio
+ * @returns  {Object}            Promise + updated portfolio
 */
 const addHolding = ({owner, _id}, {ticker, qty}) => {
   const collection = db.get().collection('portfolios');
@@ -196,7 +218,7 @@ const addHolding = ({owner, _id}, {ticker, qty}) => {
  * @param    {String}   pfloId   Portfolio _id
  * @param    {String}   hldgId   Holding _id
  * @param    {Number}   qty      Qty of shares owned
- * @returns  {Object}            Updated portfolio object
+ * @returns  {Object}            Promise + updated portfolio
 */
 const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
 
@@ -229,7 +251,7 @@ const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
  * @param    {String}   owner    User _id
  * @param    {String}   pfloId   Portfolio _id
  * @param    {String}   hldgId   Holding _id
- * @returns  {Object}            Updated portfolio object
+ * @returns  {Object}            Promise + updated portfolio
 */
 const deleteHolding = ({ owner, pfloId, hldgId }) => {
 

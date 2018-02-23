@@ -13,6 +13,8 @@ const Portfolios = require('../../models/portfolios');
 
 // dummy portfolio
 const pfloOwner = '101010101010101010101010';
+const pfloID1   = '111111111111111111111111';
+const pfloID2   = '222222222222222222222222';
 
 // dummy user
 const dummy = {
@@ -26,18 +28,18 @@ const dummy = {
 // dummy portfolios
 const dummyPflos = [
   {
-    _id   : ObjectID('111111111111111111111111'),
-    owner : pfloOwner,
-    name  : 'Portfolio 1',
-    notes : 'Dummy portfolio 1 notes',
+    _id       : ObjectID(pfloID1),
+    owner     : pfloOwner,
+    name      : 'Portfolio 1',
+    notes     : 'Dummy portfolio 1 notes',
     createdAt : Date.now(),
     updatedAt : Date.now()
   },
   {
-    _id   : ObjectID('222222222222222222222222'),
-    owner : pfloOwner,
-    name  : 'Portfolio 2',
-    notes : 'Dummy portfolio 2 notes',
+    _id       : ObjectID(pfloID2),
+    owner     : pfloOwner,
+    name      : 'Portfolio 2',
+    notes     : 'Dummy portfolio 2 notes',
     createdAt : Date.now(),
     updatedAt : Date.now()
   }
@@ -59,16 +61,6 @@ describe('Portfolios model', () => {
     });
   });
   
-  /**
-   * Add a dummy user. Leroy looks like this:
-   *   {
-   *     "_id" : ObjectId("101010101010101010101010"),
-   *     "username" : "leroy",
-   *     "password" : "testPassword",
-   *     "createdAt" : 1519310318504,
-   *     "updatedAt" : 1519310318504
-   *   }
-  */
   before((done) => {
     const collection = db.get().collection('users');
     collection.insertOne(dummy, () => {
@@ -109,17 +101,30 @@ describe('Portfolios model', () => {
       const result = await Portfolios.getAll('098fg87sb6df987sdf8gk48f');
       assert.deepEqual(result, []);
     });
-
-    it('should return an empty array when no user _id is passed', async () => {
-      const result = await Portfolios.getAll();
-      assert.deepEqual(result, []);
-    });
-
+    
     it('should return an array containing a user\'s portfolios', async () => {
       const result = await Portfolios.getAll(pfloOwner);
       assert.lengthOf(result, 2);
       assert.deepInclude(result, dummyPflos[0]);
       assert.deepInclude(result, dummyPflos[1]);
+    });
+    
+    it('should throw an error if `owner` is omitted', async () => {
+      try {
+        const result = await Portfolios.getAll();
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid owner `_id`');
+      }
+    });
+
+    it('should throw an error if `owner` is not a String', async () => {
+      try {
+        const result = await Portfolios.getAll(666);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid owner `_id`');
+      }
     });
 
   });
@@ -149,13 +154,49 @@ describe('Portfolios model', () => {
 
     it('should return null if portfolio "owner" not found', async () => {
       const pfloOwner = 'ffffffffffffffffffffffff';
-      const result = await Portfolios.getOne(pfloOwner, dummyPflos[0]._id);
+      const result = await Portfolios.getOne(pfloOwner, pfloID1);
       assert.isNull(result);
     });
 
     it('should return a portfolio when passed valid params', async () => {
-      const result = await Portfolios.getOne(pfloOwner, dummyPflos[0]._id);
+      const result = await Portfolios.getOne(pfloOwner, pfloID1);
       assert.deepEqual(result, dummyPflos[0]);
+    });
+
+    it('should throw an error if "_id" param is omitted', async () => {
+      try {
+        const result = await Portfolios.getOne(pfloOwner);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+    });
+
+    it('should throw an error if "_id" is not a String', async () => {
+      try {
+        const result = await Portfolios.getOne(pfloOwner, 666);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+    });
+
+    it('should throw an error if "owner" param is omitted', async () => {
+      try {
+        const result = await Portfolios.getOne(null, dummyPflos[0]._id);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid owner `_id`');
+      }
+    });
+
+    it('should throw an error if "owner" is not a String', async () => {
+      try {
+        const result = await Portfolios.getOne(666, dummyPflos[0]._id);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid owner `_id`');
+      }
     });
 
   });
@@ -163,6 +204,7 @@ describe('Portfolios model', () => {
 
   /**
    * Create a new portfolio
+   * create = ({owner, name, notes}) => {
    * @param    {String}   owner   User _id
    * @param    {String}   name    Portfolio name
    * @param    {String}   notes   Notes about the portfolio
@@ -173,6 +215,33 @@ describe('Portfolios model', () => {
     it('should be a function', () => {
       assert.isFunction(Portfolios.create);
     });
+
+    it('should throw an error if "owner" param is omitted', async () => {
+      try {
+        const result = await Portfolios.create(null, 'P1');
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'TypeError: Cannot destructure property `owner` of \'undefined\' or \'null\'.');
+      }
+    });
+
+    it('should throw an error if "owner" is not a String', async () => {
+      try {
+        const result = await Portfolios.create(666, 'P1');
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
+
+    // if (!name || typeof name !== 'string') {
+    //   return Promise.reject('missing or invalid portfolio `name`');
+    // }
+
+    // if (typeof notes !== 'string') {
+    //   return Promise.reject('Portfolio `notes` must be a string');
+    // }
+
   });
 
   
