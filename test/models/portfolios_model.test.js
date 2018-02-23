@@ -1,4 +1,4 @@
-/* globals describe before beforeEach after it */
+/* globals describe before after it */
 
 'use strict';
 
@@ -11,10 +11,10 @@ const ObjectID   = require('mongodb').ObjectID;
 const { assert } = require('chai');
 const Portfolios = require('../../models/portfolios');
 
-// dummy portfolio
-const pfloOwner = '101010101010101010101010';
-const pfloID1   = '111111111111111111111111';
-const pfloID2   = '222222222222222222222222';
+// dummy portfolio attributes
+const pfloOwner  = '101010101010101010101010';
+const pfloID1    = '111111111111111111111111';
+const pfloID2    = '222222222222222222222222';
 
 // dummy user
 const dummy = {
@@ -32,6 +32,7 @@ const dummyPflos = [
     owner     : pfloOwner,
     name      : 'Portfolio 1',
     notes     : 'Dummy portfolio 1 notes',
+    holdings  : [],
     createdAt : Date.now(),
     updatedAt : Date.now()
   },
@@ -40,6 +41,7 @@ const dummyPflos = [
     owner     : pfloOwner,
     name      : 'Portfolio 2',
     notes     : 'Dummy portfolio 2 notes',
+    holdings  : [],
     createdAt : Date.now(),
     updatedAt : Date.now()
   }
@@ -309,6 +311,7 @@ describe('Portfolios model', () => {
   
   /**
    * Update a portfolio
+   * update = ({owner, _id}, {name, notes})
    * @param    {String}   owner   User _id
    * @param    {String}   _id     Portfolio _id
    * @param    {String}   name    Portfolio name
@@ -317,9 +320,109 @@ describe('Portfolios model', () => {
   */
   describe('.update()', () => {
 
+    // insert a portfolio so we have one to update
+    before((done) => {
+      const collection = db.get().collection('portfolios');
+      collection.deleteMany(() => {
+        collection.insertOne(dummyPflos[0], (err) => {
+          if (err) { console.log('error inserting portfolios:, err'); }
+          done();
+        });
+      });
+    });
+
     it('should be a function', () => {
       assert.isFunction(Portfolios.update);
     });
+
+    it('should return an object on update success', async () => {
+      const target = { owner : pfloOwner, _id   : pfloID1 };
+      const update = { name  : 'testIsObj', notes : 'testIsObj' };
+      const result = await Portfolios.update(target, update);
+      assert.isObject(result);
+    });
+
+    it('updated portfolio should have all keys', async () => {
+      const target = { owner : pfloOwner, _id   : pfloID1 };
+      const update = { name  : 'testHasKeys', notes : 'testHasKeys' };
+      const result = await Portfolios.update(target, update);
+      const pKeys  = [
+        '_id', 'owner', 'holdings', 'name', 'notes', 'createdAt', 'updatedAt'
+      ];
+      assert.hasAllKeys(result, pKeys);
+    });
+
+    it('updated portfolio\'s "name" should match input', async () => {
+      const target = { owner : pfloOwner, _id   : pfloID1 };
+      const update = { name  : 'testHasKeys', notes : 'testHasKeys' };
+      const result = await Portfolios.update(target, update);
+      assert.equal(result.name, update.name);
+    });
+
+    it('updated portfolio\'s "notes" should match input', async () => {
+      const target = { owner : pfloOwner, _id   : pfloID1 };
+      const update = { name  : 'testHasKeys', notes : 'testHasKeys' };
+      const result = await Portfolios.update(target, update);
+      assert.equal(result.notes, update.notes);
+    });
+
+    it('updated portfolio\'s timestamps should NOT match', async () => {
+      const target = { owner : pfloOwner, _id   : pfloID1 };
+      const update = { name  : 'testHasKeys', notes : 'testHasKeys' };
+      const result = await Portfolios.update(target, update);
+      assert.isTrue(result.createdAt < result.updatedAt);
+    });
+
+    // it('should throw an error if "owner" param is omitted', async () => {
+    //   try {
+    //     const badDoc = { owner: null, name: 'P1' };
+    //     const result = await Portfolios.create(badDoc);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `owner`');
+    //   }
+    // });
+
+    // it('should throw an error if "owner" is not a String', async () => {
+    //   try {
+    //     const badDoc = { owner: 666, name: 'P1' };
+    //     const result = await Portfolios.create(badDoc);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `owner`');
+    //   }
+    // });
+
+    // it('should throw an error if "name" param is omitted', async () => {
+    //   try {
+    //     const badDoc = { owner: pfloOwner };
+    //     const result = await Portfolios.create(badDoc);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `name`');
+    //   }
+    // });
+
+    // it('should throw an error if "name" is not a String', async () => {
+    //   try {
+    //     const badDoc = { owner: pfloOwner, name: 666 };
+    //     const result = await Portfolios.create(badDoc);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `name`');
+    //   }
+    // });
+
+    // it('should throw an error if "notes" is not a String', async () => {
+    //   try {
+    //     const badDoc = { owner: pfloOwner, name: '666', notes: 666 };
+    //     const result = await Portfolios.create(badDoc);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'Portfolio `notes` must be a string');
+    //   }
+    // });
+
   });
 
 
