@@ -3,8 +3,8 @@
 /* ================================= SETUP ================================= */
 
 const router      = require('express').Router();
+const verifyJWT   = require('../middleware/verifyJWT');
 const Portfolios  = require('../models/portfolios');
-const verifyJWT     = require('../middleware/verifyJWT');
 const sanitizeInput = require('../middleware/sanitizeUserInput')
 
 const isOid       = require('../utils/validateObjectIds');
@@ -152,7 +152,7 @@ router.delete('/portfolios/:id', sanitizeInput(['id']), (req, res, next) => {
  *    3) ticker and qty from req body
  * Returns: JSON portfolio object
 */
-router.post('/portfolios/:id/holdings', sanitizeInput(['ticker', 'qty']), async (req, res, next) => {
+router.post('/portfolios/:id/holdings', sanitizeInput(['id', 'ticker', 'qty']), async (req, res, next) => {
 
   if (!req.body.ticker || !req.body.qty) {
     return res.status(400)
