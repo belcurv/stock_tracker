@@ -200,47 +200,109 @@ describe('Portfolios model', () => {
     });
 
   });
-
-
-  /**
-   * Create a new portfolio
-   * create = ({owner, name, notes}) => {
-   * @param    {String}   owner   User _id
-   * @param    {String}   name    Portfolio name
-   * @param    {String}   notes   Notes about the portfolio
-   * @returns  {Object}           Promise object + new portfolio
-  */
+  
+  
   describe('.create()', () => {
 
     it('should be a function', () => {
       assert.isFunction(Portfolios.create);
     });
 
-    it('should throw an error if "owner" param is omitted', async () => {
-      try {
-        const result = await Portfolios.create(null, 'P1');
-        if (result) { throw new Error('this block should not execute'); }
-      } catch (err) {
-        assert.equal(err, 'TypeError: Cannot destructure property `owner` of \'undefined\' or \'null\'.');
-      }
+    it('should return an object on successful save', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      assert.isObject(result);
     });
 
-    it('should throw an error if "owner" is not a String', async () => {
+    it('should return an object with all keys on success', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      const pKeys  = [
+        '_id', 'owner', 'holdings', 'name', 'notes', 'createdAt', 'updatedAt'
+      ];
+      assert.hasAllKeys(result, pKeys);
+    });
+
+    it('saved portfolio\'s "owner" should match input', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      assert.equal(result.owner, pfloOwner);
+    });
+
+    it('saved portfolio\'s "name" should match input', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      assert.equal(result.name, 'pName');
+    });
+
+    it('saved portfolio\'s "notes" should match input', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      assert.equal(result.notes, 'pNotes');
+    });
+
+    it('saved portfolio\'s "holdings" should be empty Array', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      assert.deepEqual(result.holdings, []);
+    });
+
+    it('saved portfolio\'s timestamps should be finite numbers', async () => {
+      const doc    = { owner: pfloOwner, name: 'pName', notes: 'pNotes' };
+      const result = await Portfolios.create(doc);
+      assert.isFinite(result.createdAt);
+      assert.isFinite(result.updatedAt);
+    });
+
+    it('should throw an error if "owner" param is omitted', async () => {
       try {
-        const result = await Portfolios.create(666, 'P1');
+        const badDoc = { owner: null, name: 'P1' };
+        const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
         assert.equal(err, 'missing or invalid portfolio `owner`');
       }
     });
 
-    // if (!name || typeof name !== 'string') {
-    //   return Promise.reject('missing or invalid portfolio `name`');
-    // }
+    it('should throw an error if "owner" is not a String', async () => {
+      try {
+        const badDoc = { owner: 666, name: 'P1' };
+        const result = await Portfolios.create(badDoc);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
 
-    // if (typeof notes !== 'string') {
-    //   return Promise.reject('Portfolio `notes` must be a string');
-    // }
+    it('should throw an error if "name" param is omitted', async () => {
+      try {
+        const badDoc = { owner: pfloOwner };
+        const result = await Portfolios.create(badDoc);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `name`');
+      }
+    });
+
+    it('should throw an error if "name" is not a String', async () => {
+      try {
+        const badDoc = { owner: pfloOwner, name: 666 };
+        const result = await Portfolios.create(badDoc);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `name`');
+      }
+    });
+
+    it('should throw an error if "notes" is not a String', async () => {
+      try {
+        const badDoc = { owner: pfloOwner, name: '666', notes: 666 };
+        const result = await Portfolios.create(badDoc);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'Portfolio `notes` must be a string');
+      }
+    });
 
   });
 
