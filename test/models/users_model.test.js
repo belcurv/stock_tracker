@@ -6,8 +6,8 @@
 
 process.env.NODE_ENV = 'testing';
 
-const db         = require('../../db/index');
 const { assert } = require('chai');
+const db         = require('../../db/index');
 const Users      = require('../../models/users');
 
 // dummy user
@@ -33,7 +33,7 @@ describe('Users model', function() {
 
   after((done) => {
     const collection = db.get().collection('users');
-    collection.drop(() => {
+    collection.deleteMany(() => {
       db.close(() => {
         done();
       });
