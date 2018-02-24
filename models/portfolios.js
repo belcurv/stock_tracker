@@ -111,6 +111,19 @@ const create = ({owner, name, notes}) => {
  * @returns  {Object}           Promise + updated portfolio
 */
 const update = ({owner, _id}, {name, notes}) => {
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid portfolio `owner`');
+  }
+ 
+  if (!_id || typeof _id !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+
+  if ((name && typeof name !== 'string') || (notes && typeof notes !== 'string')) {
+    return Promise.reject('invalid portfolio update properties');
+  }
+
   const collection = db.get().collection('portfolios');
   
   const filter = {
@@ -138,6 +151,15 @@ const update = ({owner, _id}, {name, notes}) => {
  * @returns  {Object}           Promise
 */
 const deletePortfolio = (owner, _id) => {
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid portfolio `owner`');
+  }
+
+  if (!_id || typeof _id !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+
   const collection = db.get().collection('portfolios');
   const target     = {
     _id   : ObjectID(_id),
@@ -158,6 +180,19 @@ const deletePortfolio = (owner, _id) => {
  * @returns  {Boolean}           True if portfolio contains specified holding
 */
 const hasHolding = (owner, _id, ticker) => {
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid portfolio `owner`');
+  }
+
+  if (!_id || typeof _id !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+  
+  if (!ticker || typeof ticker !== 'string') {
+    return Promise.reject('missing or invalid portfolio `ticker`');
+  }
+
   const collection = db.get().collection('portfolios');
 
   const target = {
@@ -183,6 +218,19 @@ const hasHolding = (owner, _id, ticker) => {
  * @returns  {Object}            Promise + updated portfolio
 */
 const addHolding = ({owner, _id}, {ticker, qty}) => {
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid portfolio `owner`');
+  }
+
+  if (!_id || typeof _id !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+
+  if (!ticker || typeof ticker !== 'string') {
+    return Promise.reject('missing or invalid portfolio `ticker`');
+  }
+
   const collection = db.get().collection('portfolios');
   const now = Date.now();
 
@@ -200,6 +248,9 @@ const addHolding = ({owner, _id}, {ticker, qty}) => {
         updatedAt : now,
         qty
       }
+    },
+    '$set': {
+      updatedAt: Date.now()
     }
   };
   
