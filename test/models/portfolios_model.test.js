@@ -1,4 +1,4 @@
-/* globals describe before after it */
+/* globals describe before beforeEach after it */
 
 'use strict';
 
@@ -11,19 +11,10 @@ const ObjectID   = require('mongodb').ObjectID;
 const { assert } = require('chai');
 const Portfolios = require('../../models/portfolios');
 
-// dummy portfolio attributes
+// dummy ObjectID's (must be 24 characters long)
 const pfloOwner  = '101010101010101010101010';
 const pfloID1    = '111111111111111111111111';
 const pfloID2    = '222222222222222222222222';
-
-// dummy user
-const dummy = {
-  _id       : ObjectID(pfloOwner),
-  username  : 'leroy',
-  password  : 'testPassword',
-  createdAt : Date.now(),
-  updatedAt : Date.now()
-};
 
 // dummy portfolios
 const dummyPflos = [
@@ -32,7 +23,13 @@ const dummyPflos = [
     owner     : pfloOwner,
     name      : 'Portfolio 1',
     notes     : 'Dummy portfolio 1 notes',
-    holdings  : [],
+    holdings: [{
+      ticker    : 'MSFT',
+      _id       : ObjectID('4a4a4a4a4a4a4a4a4a4a4a4a'),
+      createdAt : Date.now(),
+      updatedAt : Date.now(),
+      qty       : 666
+    }],
     createdAt : Date.now(),
     updatedAt : Date.now()
   },
@@ -41,7 +38,13 @@ const dummyPflos = [
     owner     : pfloOwner,
     name      : 'Portfolio 2',
     notes     : 'Dummy portfolio 2 notes',
-    holdings  : [],
+    holdings: [{
+      ticker    : 'AAPL',
+      _id       : ObjectID('9b9b9b9b9b9b9b9b9b9b9b9b'),
+      createdAt : Date.now(),
+      updatedAt : Date.now(),
+      qty       : 1
+    }],
     createdAt : Date.now(),
     updatedAt : Date.now()
   }
@@ -62,22 +65,12 @@ describe('Portfolios model', () => {
       }
     });
   });
-  
-  before((done) => {
-    const collection = db.get().collection('users');
-    collection.insertOne(dummy, () => {
-      done();
-    });
-  });
 
   after((done) => {
     const plfos_collection = db.get().collection('portfolios');
-    const users_collection = db.get().collection('users');
-    plfos_collection.drop(() => {
-      users_collection.drop(() => {
-        db.close(() => {
-          done();
-        });
+    plfos_collection.deleteMany(() => {
+      db.close(() => {
+        done();
       });
     });
   });
@@ -309,15 +302,6 @@ describe('Portfolios model', () => {
   });
 
   
-  /**
-   * Update a portfolio
-   * update = ({owner, _id}, {name, notes})
-   * @param    {String}   owner   User _id
-   * @param    {String}   _id     Portfolio _id
-   * @param    {String}   name    Portfolio name
-   * @param    {String}   notes   Notes about the portfolio
-   * @returns  {Object}           Updated portfolio
-  */
   describe('.update()', () => {
 
     // insert a portfolio so we have one to update
@@ -373,89 +357,224 @@ describe('Portfolios model', () => {
       assert.isTrue(result.createdAt < result.updatedAt);
     });
 
-    // it('should throw an error if "owner" param is omitted', async () => {
-    //   try {
-    //     const badDoc = { owner: null, name: 'P1' };
-    //     const result = await Portfolios.create(badDoc);
-    //     if (result) { throw new Error('this block should not execute'); }
-    //   } catch (err) {
-    //     assert.equal(err, 'missing or invalid portfolio `owner`');
-    //   }
-    // });
+    it('should throw an error if "owner" param is omitted', async () => {
+      try {
+        const badTarget = { owner: null, _id: pfloID1 };
+        const update    = { name: 'testHasKeys', notes: 'testHasKeys' };
+        const result    = await Portfolios.update(badTarget, update);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
 
-    // it('should throw an error if "owner" is not a String', async () => {
-    //   try {
-    //     const badDoc = { owner: 666, name: 'P1' };
-    //     const result = await Portfolios.create(badDoc);
-    //     if (result) { throw new Error('this block should not execute'); }
-    //   } catch (err) {
-    //     assert.equal(err, 'missing or invalid portfolio `owner`');
-    //   }
-    // });
+    it('should throw an error if "owner" is not a String', async () => {
+      try {
+        const badTarget = { owner: 666, _id: pfloID1 };
+        const update    = { name: 'testHasKeys', notes: 'testHasKeys' };
+        const result    = await Portfolios.update(badTarget, update);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
 
-    // it('should throw an error if "name" param is omitted', async () => {
-    //   try {
-    //     const badDoc = { owner: pfloOwner };
-    //     const result = await Portfolios.create(badDoc);
-    //     if (result) { throw new Error('this block should not execute'); }
-    //   } catch (err) {
-    //     assert.equal(err, 'missing or invalid portfolio `name`');
-    //   }
-    // });
+    it('should throw an error if "_id" param is omitted', async () => {
+      try {
+        const badDoc = { owner: pfloOwner, _id: null };
+        const update = { name: 'testHasKeys', notes: 'testHasKeys' };
+        const result = await Portfolios.update(badDoc, update);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+    });
 
-    // it('should throw an error if "name" is not a String', async () => {
-    //   try {
-    //     const badDoc = { owner: pfloOwner, name: 666 };
-    //     const result = await Portfolios.create(badDoc);
-    //     if (result) { throw new Error('this block should not execute'); }
-    //   } catch (err) {
-    //     assert.equal(err, 'missing or invalid portfolio `name`');
-    //   }
-    // });
+    it('should throw an error if "_id" is not a String', async () => {
+      try {
+        const badDoc = { owner: pfloOwner, _id: 666 };
+        const update = { name: 'testHasKeys', notes: 'testHasKeys' };
+        const result = await Portfolios.update(badDoc, update);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+    });
 
-    // it('should throw an error if "notes" is not a String', async () => {
-    //   try {
-    //     const badDoc = { owner: pfloOwner, name: '666', notes: 666 };
-    //     const result = await Portfolios.create(badDoc);
-    //     if (result) { throw new Error('this block should not execute'); }
-    //   } catch (err) {
-    //     assert.equal(err, 'Portfolio `notes` must be a string');
-    //   }
-    // });
+    it('should throw an error when given invalid updates', async () => {
+      try {
+        const badDoc = { owner: pfloOwner, _id: pfloID1 };
+        const update = { name: 666, notes: 666 };
+        const result = await Portfolios.update(badDoc, update);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'invalid portfolio update properties');
+      }
+    });
 
   });
 
 
-  /**
-   * Delete a user's portfolio
-   * @param    {String}   owner   User _id
-   * @param    {String}   _id     Portfolio _id
-  */
   describe('.deletePortfolio()', () => {
+
+    beforeEach((done) => {
+      const collection = db.get().collection('portfolios');
+      collection.deleteMany(() => {
+        collection.insertMany(dummyPflos, (err) => {
+          if (err) { console.log('error inserting portfolios:, err'); }
+          done();
+        });
+      });
+    });
 
     it('should be a function', () => {
       assert.isFunction(Portfolios.deletePortfolio);
     });
+
+    // deletePortfolio = (owner, _id)
+    it('should delete a portfolio', async () => {
+      const result = await Portfolios.deletePortfolio(pfloOwner, pfloID1);
+      assert.deepEqual(result.result.n,  1);
+      assert.deepEqual(result.result.ok, 1);
+
+      const pflo = await Portfolios.getOne(pfloOwner, pfloID1);
+      assert.isNull(pflo);
+    });
+
+    it('should throw an error if "owner" param is omitted', async () => {
+      try {
+        const result = await Portfolios.deletePortfolio(null, pfloID1);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
+
+    it('should throw an error if "owner" is not a String', async () => {
+      try {
+        const result = await Portfolios.deletePortfolio(666, pfloID1);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
+
+    it('should throw an error if "_id" param is omitted', async () => {
+      try {
+        const result = await Portfolios.deletePortfolio(pfloOwner);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+    });
+
+    it('should throw an error if "_id" is not a String', async () => {
+      try {
+        const result = await Portfolios.deletePortfolio(pfloOwner, 666);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+    });
+
   });
 
 
   /**
-   * Check if a portfolio has a specific holding
-   * @param    {String}   owner    User _id
-   * @param    {String}   _id      Portfolio _id
-   * @param    {String}   ticker   Holding's ticker symbol
-   * @returns  {Boolean}           True if portfolio contains specified holding
+   * hasHolding = (owner, _id, ticker)
   */
   describe('.hasHolding()', () => {
+
+    before((done) => {
+      const collection = db.get().collection('portfolios');
+      collection.deleteMany(() => {
+        collection.insertMany(dummyPflos, (err) => {
+          if (err) { console.log('error inserting portfolios:, err'); }
+          done();
+        });
+      });
+    });
 
     it('should be a function', () => {
       assert.isFunction(Portfolios.hasHolding);
     });
+
+    it('should return "true" if portfolio has holding', async () => {
+      const result = await Portfolios.hasHolding(pfloOwner, pfloID1, 'MSFT');
+      assert.isTrue(result);
+    });
+
+    it('should return "false" if portfolio doesnt have holding', async () => {
+      const result = await Portfolios.hasHolding(pfloOwner, pfloID1, 'GOOG');
+      assert.isFalse(result);
+    });
+
+    it('should throw an error if "owner" omitted', async () => {
+      try {
+        const result = await Portfolios.hasHolding(null, pfloID1, 'MSFT');
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+
+    });
+
+    it('should throw an error if "owner" is not a String', async () => {
+      try {
+        const result = await Portfolios.hasHolding(666, pfloID1, 'MSFT');
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+
+    });
+
+    it('should throw an error if "_id" omitted', async () => {
+      try {
+        const result = await Portfolios.hasHolding(pfloOwner, null, 'MSFT');
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+
+    });
+
+    it('should throw an error if "_id" is not a String', async () => {
+      try {
+        const result = await Portfolios.hasHolding(pfloOwner, 666, 'MSFT');
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `_id`');
+      }
+
+    });
+
+    it('should throw an error if "ticker" omitted', async () => {
+      try {
+        const result = await Portfolios.hasHolding(pfloOwner, pfloID1);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `ticker`');
+      }
+
+    });
+
+    it('should throw an error if "ticker" is not a String', async () => {
+      try {
+        const result = await Portfolios.hasHolding(pfloOwner, pfloID1, 666);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `ticker`');
+      }
+
+    });
+
   });
 
 
   /**
    * Add holding to portfolio
+   * addHolding = ({owner, _id}, {ticker, qty})
    * @param    {String}   owner    User _id
    * @param    {String}   _id      Portfolio _id
    * @param    {String}   ticker   Holding's ticker symbol
@@ -464,9 +583,111 @@ describe('Portfolios model', () => {
   */
   describe('.addHolding()', () => {
 
+    beforeEach((done) => {
+      const collection = db.get().collection('portfolios');
+      collection.deleteMany(() => {
+        collection.insertMany(dummyPflos, (err) => {
+          if (err) { console.log('error inserting portfolios:, err'); }
+          done();
+        });
+      });
+    });
+
     it('should be a function', () => {
       assert.isFunction(Portfolios.addHolding);
     });
+
+    it('should add a holding to a portfolio', async () => {
+      const pflo    = { owner  : pfloOwner, _id : pfloID1 };
+      const holding = { ticker : 'GOOG',    qty : 2 };
+      const result  = await Portfolios.addHolding(pflo, holding);
+      assert.lengthOf(result.holdings, 2);
+    });
+    
+    it('added holdings should have all keys', async () => {
+      const pflo     = { owner  : pfloOwner, _id : pfloID1 };
+      const holding  = { ticker : 'GOOG',    qty : 2 };
+      const hldgKeys = [ 'ticker', '_id', 'createdAt', 'updatedAt', 'qty' ];
+      const result   = await Portfolios.addHolding(pflo, holding);
+      assert.hasAllKeys(result.holdings[1], hldgKeys);
+    });
+
+    it('added holding\'s "ticker" should match input', async () => {
+      const pflo    = { owner  : pfloOwner, _id : pfloID1 };
+      const holding = { ticker : 'GOOG',    qty : 2 };
+      const result  = await Portfolios.addHolding(pflo, holding);
+      assert.equal(result.holdings[1].ticker, 'GOOG');
+    });
+
+    it('added holding\'s "qty" should match input', async () => {
+      const pflo    = { owner  : pfloOwner, _id : pfloID1 };
+      const holding = { ticker : 'GOOG',    qty : 2 };
+      const result  = await Portfolios.addHolding(pflo, holding);
+      assert.equal(result.holdings[1].qty, 2);
+    });
+
+    it('should throw an error if "owner" omitted', async () => {
+      try {
+        const pflo    = { owner  : null,   _id : pfloID1 };
+        const holding = { ticker : 'GOOG', qty : 2 };
+        const result  = await Portfolios.addHolding(pflo, holding);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
+
+    it('should throw an error if "owner" is not a string', async () => {
+      try {
+        const pflo    = { owner  : 666,    _id : pfloID1 };
+        const holding = { ticker : 'GOOG', qty : 2 };
+        const result  = await Portfolios.addHolding(pflo, holding);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err, 'missing or invalid portfolio `owner`');
+      }
+    });
+
+    // it('should throw an error if "_id" omitted', async () => {
+    //   try {
+    //     const result = await Portfolios.hasHolding(pfloOwner, null, 'MSFT');
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `_id`');
+    //   }
+
+    // });
+
+    // it('should throw an error if "_id" is not a String', async () => {
+    //   try {
+    //     const result = await Portfolios.hasHolding(pfloOwner, 666, 'MSFT');
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `_id`');
+    //   }
+
+    // });
+
+    // it('should throw an error if "ticker" omitted', async () => {
+    //   try {
+    //     const result = await Portfolios.hasHolding(pfloOwner, pfloID1);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `ticker`');
+    //   }
+
+    // });
+
+    // it('should throw an error if "ticker" is not a String', async () => {
+    //   try {
+    //     const result = await Portfolios.hasHolding(pfloOwner, pfloID1, 666);
+    //     if (result) { throw new Error('this block should not execute'); }
+    //   } catch (err) {
+    //     assert.equal(err, 'missing or invalid portfolio `ticker`');
+    //   }
+
+    // });
+
   });
 
 
