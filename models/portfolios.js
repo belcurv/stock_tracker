@@ -153,7 +153,7 @@ const hasHolding = (owner, _id, ticker) => {
  * @param    {String}   _id      Portfolio _id
  * @param    {String}   ticker   Holding's ticker symbol
  * @param    {Number}   qty      Qty of shares owned
- * @returns  {Object}            Updated portfolio
+ * @returns  {Object}            Updated portfolio; holdings sorted by ticker
 */
 const addHolding = ({owner, _id}, {ticker, qty}) => {
   const collection = db.get().collection('portfolios');
@@ -167,11 +167,14 @@ const addHolding = ({owner, _id}, {ticker, qty}) => {
   const updates = {
     '$push': {
       holdings : {
-        _id       : ObjectID(),
-        ticker    : sanitize(ticker),
-        createdAt : now,
-        updatedAt : now,
-        qty
+        $each: [{
+          _id       : ObjectID(),
+          ticker    : sanitize(ticker),
+          createdAt : now,
+          updatedAt : now,
+          qty
+        }],
+        $sort: { ticker: 1 }
       }
     }
   };
