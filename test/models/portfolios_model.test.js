@@ -593,6 +593,13 @@ describe('Portfolios model', () => {
       const result  = await Portfolios.addHolding(pflo, holding);
       assert.lengthOf(result.holdings, 2);
     });
+
+    it('holdings should be sorted by ticker ascending', async () => {
+      const pflo         = { owner  : pfloOwner, _id : pfloID1 };
+      const holding      = { ticker : 'GOOG',    qty : 2 };
+      const { holdings } = await Portfolios.addHolding(pflo, holding);
+      assert.isTrue(holdings[0].ticker < holdings[1].ticker);
+    });
     
     it('added holdings should have all keys', async () => {
       const pflo     = { owner  : pfloOwner, _id : pfloID1 };
@@ -606,14 +613,14 @@ describe('Portfolios model', () => {
       const pflo    = { owner  : pfloOwner, _id : pfloID1 };
       const holding = { ticker : 'GOOG',    qty : 2 };
       const result  = await Portfolios.addHolding(pflo, holding);
-      assert.equal(result.holdings[1].ticker, 'GOOG');
+      assert.equal(result.holdings[0].ticker, 'GOOG');
     });
 
     it('added holding\'s `qty` should match input', async () => {
       const pflo    = { owner  : pfloOwner, _id : pfloID1 };
       const holding = { ticker : 'GOOG',    qty : 2 };
       const result  = await Portfolios.addHolding(pflo, holding);
-      assert.equal(result.holdings[1].qty, 2);
+      assert.equal(result.holdings[0].qty, 2);
     });
 
     it('should throw an error if "owner" omitted', async () => {
