@@ -6,8 +6,8 @@
 
 process.env.NODE_ENV = 'testing';
 
-const db         = require('../../db/index');
 const { assert } = require('chai');
+const db         = require('../../db/index');
 const Users      = require('../../models/users');
 
 // dummy user
@@ -17,12 +17,12 @@ const testPassword1 = 'testdummypass1';
 
 /* ================================= TESTS ================================= */
 
-describe('users model', function() {
+describe('Users model', function() {
 
-  before(done => {
+  before((done) => {
     db.connect((err) => {
       if (err) {
-        console.log('Unable to connect to MongoDB', err);
+        console.log('Unable to connect to MongoDB\n', err);
         process.exit(1);
       } else {
         done();
@@ -31,10 +31,10 @@ describe('users model', function() {
   });
 
 
-  after(done => {
+  after((done) => {
     const collection = db.get().collection('users');
-    collection.deleteMany({ username: testUsername }, () => {
-      db.close(function() {
+    collection.deleteMany(() => {
+      db.close(() => {
         done();
       });
     });
@@ -43,7 +43,7 @@ describe('users model', function() {
 
   describe('.usernameExists()', () => {
 
-    beforeEach(done => {
+    beforeEach((done) => {
       const collection = db.get().collection('users');
       const doc = {
         username: testUsername,
@@ -70,7 +70,7 @@ describe('users model', function() {
       assert.isFalse(result);
     });
 
-    it('should return false if arg "username" omitted', async () => {
+    it('should return false when "username" arg omitted', async () => {
       const result = await Users.usernameExists();
       assert.isFalse(result);
     });
@@ -101,7 +101,7 @@ describe('users model', function() {
 
   describe('.getUser()', () => {
 
-    beforeEach(done => {
+    beforeEach((done) => {
       const collection = db.get().collection('users');
       const doc = {
         username: testUsername,
@@ -123,8 +123,13 @@ describe('users model', function() {
       assert.equal(result.username, testUsername);
     });
 
-    it('should return "null" if user not found in DB', async () => {
+    it('should return null if username not found in DB', async () => {
       const result = await Users.getUser('ziggy');
+      assert.isNull(result);
+    });
+
+    it('should return null when "username" arg omitted', async () => {
+      const result = await Users.getUser();
       assert.isNull(result);
     });
 
