@@ -273,6 +273,22 @@ const addHolding = ({owner, _id}, {ticker, qty}) => {
 */
 const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
 
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid `owner`');
+  }
+
+  if (!pfloId || typeof pfloId !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+
+  if (!hldgId || typeof hldgId !== 'string') {
+    return Promise.reject('missing or invalid holding `_id`');
+  }
+
+  if (!qty || typeof qty !== 'number') {
+    return Promise.reject('missing or invalid `qty`');
+  }
+
   const collection = db.get().collection('portfolios');
 
   const filter = {
@@ -305,6 +321,18 @@ const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
  * @returns  {Object}            Promise + updated portfolio
 */
 const deleteHolding = ({ owner, pfloId, hldgId }) => {
+
+  if (!owner || typeof owner !== 'string') {
+    return Promise.reject('missing or invalid portfolio `owner`');
+  }
+
+  if (!pfloId || typeof pfloId !== 'string') {
+    return Promise.reject('missing or invalid portfolio `_id`');
+  }
+
+  if (!hldgId || typeof hldgId !== 'string') {
+    return Promise.reject('missing or invalid holding `_id`');
+  }
 
   const collection = db.get().collection('portfolios');
 
