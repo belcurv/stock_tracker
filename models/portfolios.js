@@ -6,6 +6,9 @@ const sanitize = require('../utils/sanitizeMongoQuery');
 const ObjectID = require('mongodb').ObjectID;
 const db       = require('../db');
 
+const required = require('../utils/requiredParam');
+const validate = require('../utils/validateModelParams');
+
 
 /* ============================ PUBLIC METHODS ============================= */
 
@@ -14,11 +17,9 @@ const db       = require('../db');
  * @param    {String}   owner   User _id
  * @returns  {Object}           Promise + array of portfolios
 */
-const getAll = (owner) => {
+const getAll = (owner = required('owner')) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid owner `_id`');
-  }
+  validate([{ type: 'owner', value: owner }]);
 
   const collection = db.get().collection('portfolios');
   const target     = { owner };
@@ -37,15 +38,12 @@ const getAll = (owner) => {
  * @param    {String}   _id     Portfolio _id
  * @returns  {Object}           Promise + portfolio
  */
-const getOne = (owner, _id) => {
+const getOne = (
+  owner = required('owner'), 
+  _id   = required('_id')
+) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid owner `_id`');
-  }
-
-  if (!_id || typeof _id !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
+  validate([{ type: 'owner', value: owner }, { type: '_id', value : _id }]);
 
   const collection = db.get().collection('portfolios');
   const target     = {
@@ -64,28 +62,25 @@ const getOne = (owner, _id) => {
  * Create a new portfolio
  * @param    {String}   owner   User _id
  * @param    {String}   name    Portfolio name
- * @param    {String}   notes   Notes about the portfolio
+ * @param    {String}   notes   Optional notes about the portfolio
  * @returns  {Object}           Promise + new portfolio
 */
-const create = ({owner, name, notes}) => {
+const create = ({
+  owner = required('owner'),
+  name  = required('name'),
+  notes
+}) => {
 
   notes = notes || '';
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid portfolio `owner`');
-  }
-
-  if (!name || typeof name !== 'string') {
-    return Promise.reject('missing or invalid portfolio `name`');
-  }
-
-  if (typeof notes !== 'string') {
-    return Promise.reject('Portfolio `notes` must be a string');
-  }
+  validate([
+    { type: 'owner', value: owner },
+    { type: 'name',  value: name },
+    { type: 'notes', value: notes }
+  ]);
 
   const collection = db.get().collection('portfolios');
   const now        = Date.now();
-
   const document   = {
     owner,
     name      : sanitize(name).toString().trim(),
@@ -110,19 +105,17 @@ const create = ({owner, name, notes}) => {
  * @param    {String}   notes   Notes about the portfolio
  * @returns  {Object}           Promise + updated portfolio
 */
-const update = ({owner, _id}, {name, notes}) => {
+const update = (
+  { owner = required('owner'), _id = required('_id') },
+  { name, notes }
+) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid portfolio `owner`');
-  }
- 
-  if (!_id || typeof _id !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
-
-  if ((name && typeof name !== 'string') || (notes && typeof notes !== 'string')) {
-    return Promise.reject('invalid portfolio update properties');
-  }
+  validate([
+    { type: 'owner', value: owner },
+    { type: '_id',   value: _id },
+    { type: 'name',  value: name },
+    { type: 'notes', value: notes }
+  ]);
 
   const collection = db.get().collection('portfolios');
   
@@ -150,15 +143,15 @@ const update = ({owner, _id}, {name, notes}) => {
  * @param    {String}   _id     Portfolio _id
  * @returns  {Object}           Promise
 */
-const deletePortfolio = (owner, _id) => {
+const deletePortfolio = (
+  owner = required('owner'),
+  _id   = required('_id')
+) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid portfolio `owner`');
-  }
-
-  if (!_id || typeof _id !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
+  validate([
+    { type: 'owner', value: owner },
+    { type: '_id',   value: _id }
+  ]);
 
   const collection = db.get().collection('portfolios');
   const target     = {
@@ -179,19 +172,17 @@ const deletePortfolio = (owner, _id) => {
  * @param    {String}   ticker   Holding's ticker symbol
  * @returns  {Boolean}           True if portfolio contains specified holding
 */
-const hasHolding = (owner, _id, ticker) => {
+const hasHolding = (
+  owner  = required('owner'),
+  _id    = required('_id'),
+  ticker = required('ticker')
+) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid portfolio `owner`');
-  }
-
-  if (!_id || typeof _id !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
-  
-  if (!ticker || typeof ticker !== 'string') {
-    return Promise.reject('missing or invalid portfolio `ticker`');
-  }
+  validate([
+    { type: 'owner',  value: owner },
+    { type: '_id',    value: _id },
+    { type: 'ticker', value: ticker }
+  ]);
 
   const collection = db.get().collection('portfolios');
 
@@ -217,19 +208,17 @@ const hasHolding = (owner, _id, ticker) => {
  * @param    {Number}   qty      Qty of shares owned
  * @returns  {Object}            Updated portfolio; holdings sorted by ticker
 */
-const addHolding = ({owner, _id}, {ticker, qty}) => {
+const addHolding = (
+  {owner  = required('owner'),  _id = required('_id')}, 
+  {ticker = required('ticker'), qty = required('qty')}
+) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid portfolio `owner`');
-  }
-
-  if (!_id || typeof _id !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
-
-  if (!ticker || typeof ticker !== 'string') {
-    return Promise.reject('missing or invalid portfolio `ticker`');
-  }
+  validate([
+    { type: 'owner',  value: owner },
+    { type: '_id',    value: _id },
+    { type: 'ticker', value: ticker },
+    { type: 'qty',    value: qty }
+  ]);
 
   const collection = db.get().collection('portfolios');
   const now = Date.now();
@@ -274,23 +263,21 @@ const addHolding = ({owner, _id}, {ticker, qty}) => {
  * @param    {Number}   qty      Qty of shares owned
  * @returns  {Object}            Promise + updated portfolio
 */
-const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
+const updateHolding = (
+  {
+    owner  = required('owner'),
+    pfloId = required('pfloId'),
+    hldgId = required('hldgId')
+  },
+  qty = required('qty')
+) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid `owner`');
-  }
-
-  if (!pfloId || typeof pfloId !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
-
-  if (!hldgId || typeof hldgId !== 'string') {
-    return Promise.reject('missing or invalid holding `_id`');
-  }
-
-  if (!qty || typeof qty !== 'number') {
-    return Promise.reject('missing or invalid `qty`');
-  }
+  validate([
+    { type: 'owner',  value: owner },
+    { type: 'pfloId', value: pfloId },
+    { type: 'hldgId', value: hldgId },
+    { type: 'qty',    value: qty }
+  ]);
 
   const collection = db.get().collection('portfolios');
 
@@ -323,19 +310,17 @@ const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
  * @param    {String}   hldgId   Holding _id
  * @returns  {Object}            Promise + updated portfolio
 */
-const deleteHolding = ({ owner, pfloId, hldgId }) => {
+const deleteHolding = ({
+  owner  = required('owner'),
+  pfloId = required('pfloId'),
+  hldgId = required('hldgId')
+}) => {
 
-  if (!owner || typeof owner !== 'string') {
-    return Promise.reject('missing or invalid portfolio `owner`');
-  }
-
-  if (!pfloId || typeof pfloId !== 'string') {
-    return Promise.reject('missing or invalid portfolio `_id`');
-  }
-
-  if (!hldgId || typeof hldgId !== 'string') {
-    return Promise.reject('missing or invalid holding `_id`');
-  }
+  validate([
+    { type: 'owner',  value: owner },
+    { type: 'pfloId', value: pfloId },
+    { type: 'hldgId', value: hldgId }
+  ]);
 
   const collection = db.get().collection('portfolios');
 
