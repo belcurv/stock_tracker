@@ -95,7 +95,7 @@ describe('Portfolios model', () => {
     });
 
     it('should return an empty array when no portfolios exist', async () => {
-      const result = await Portfolios.getAll('098fg87sb6df987sdf8gk48f');
+      const result = await Portfolios.getAll('098ff87ab6df987ddf8ec48f');
       assert.deepEqual(result, []);
     });
     
@@ -106,21 +106,21 @@ describe('Portfolios model', () => {
       assert.deepInclude(result, dummyPflos[1]);
     });
     
-    it('should throw an error if `owner` is omitted', async () => {
+    it('should throw an error if "owner" is omitted', async () => {
       try {
         const result = await Portfolios.getAll();
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid owner `_id`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw an error if `owner` is not a String', async () => {
+    it('should throw an error if "owner" is invalid ObjectID', async () => {
       try {
         const result = await Portfolios.getAll(666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid owner `_id`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
@@ -160,39 +160,39 @@ describe('Portfolios model', () => {
       assert.deepEqual(result, dummyPflos[0]);
     });
 
+    it('should throw an error if "owner" param is omitted', async () => {
+      try {
+        const result = await Portfolios.getOne(undefined, dummyPflos[0]._id);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err.message, 'Required parameter "owner" is missing');
+      }
+    });
+
+    it('should throw an error if "owner" is invalid ObjectID', async () => {
+      try {
+        const result = await Portfolios.getOne(666, dummyPflos[0]._id);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err.message, 'Invalid parameter "owner"');
+      }
+    });
+
     it('should throw an error if "_id" param is omitted', async () => {
       try {
         const result = await Portfolios.getOne(pfloOwner);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "_id" is missing');
       }
     });
 
-    it('should throw an error if "_id" is not a String', async () => {
+    it('should throw an error if "_id" is invalid ObjectID', async () => {
       try {
         const result = await Portfolios.getOne(pfloOwner, 666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
-      }
-    });
-
-    it('should throw an error if "owner" param is omitted', async () => {
-      try {
-        const result = await Portfolios.getOne(null, dummyPflos[0]._id);
-        if (result) { throw new Error('this block should not execute'); }
-      } catch (err) {
-        assert.equal(err, 'missing or invalid owner `_id`');
-      }
-    });
-
-    it('should throw an error if "owner" is not a String', async () => {
-      try {
-        const result = await Portfolios.getOne(666, dummyPflos[0]._id);
-        if (result) { throw new Error('this block should not execute'); }
-      } catch (err) {
-        assert.equal(err, 'missing or invalid owner `_id`');
+        assert.equal(err.message, 'Invalid parameter "_id"');
       }
     });
 
@@ -252,52 +252,52 @@ describe('Portfolios model', () => {
     });
 
     it('should throw an error if "owner" param is omitted', async () => {
+      const badDoc = { name: 'P1' };
       try {
-        const badDoc = { owner: null, name: 'P1' };
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw an error if "owner" is not a String', async () => {
+    it('should throw an error if "owner" is invalid ObjectID', async () => {
+      const badDoc = { owner: 666, name: 'P1' };
       try {
-        const badDoc = { owner: 666, name: 'P1' };
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
     it('should throw an error if "name" param is omitted', async () => {
+      const badDoc = { owner: pfloOwner };
       try {
-        const badDoc = { owner: pfloOwner };
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `name`');
+        assert.equal(err.message, 'Required parameter "name" is missing');
       }
     });
 
-    it('should throw an error if "name" is not a String', async () => {
+    it('should throw an error if "name" is invalid ObjectID', async () => {
+      const badDoc = { owner: pfloOwner, name: 666 };
       try {
-        const badDoc = { owner: pfloOwner, name: 666 };
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `name`');
+        assert.equal(err.message, 'Invalid parameter "name"');
       }
     });
 
     it('should throw an error if "notes" is not a String', async () => {
+      const badDoc = { owner: pfloOwner, name: '666', notes: 666 };
       try {
-        const badDoc = { owner: pfloOwner, name: '666', notes: 666 };
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'Portfolio `notes` must be a string');
+        assert.equal(err.message, 'Invalid parameter "notes"');
       }
     });
 
@@ -360,57 +360,68 @@ describe('Portfolios model', () => {
     });
 
     it('should throw an error if "owner" param is omitted', async () => {
+      const badTarget = { _id: pfloID1 };
+      const update    = { name: 'testHasKeys', notes: 'testHasKeys' };
       try {
-        const badTarget = { owner: null, _id: pfloID1 };
-        const update    = { name: 'testHasKeys', notes: 'testHasKeys' };
         const result    = await Portfolios.update(badTarget, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw an error if "owner" is not a String', async () => {
+    it('should throw an error if "owner" is invalid ObjectID', async () => {
+      const badTarget = { owner: 666, _id: pfloID1 };
+      const update    = { name: 'testHasKeys', notes: 'testHasKeys' };
       try {
-        const badTarget = { owner: 666, _id: pfloID1 };
-        const update    = { name: 'testHasKeys', notes: 'testHasKeys' };
         const result    = await Portfolios.update(badTarget, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
     it('should throw an error if "_id" param is omitted', async () => {
+      const badDoc = { owner: pfloOwner };
+      const update = { name: 'testHasKeys', notes: 'testHasKeys' };
       try {
-        const badDoc = { owner: pfloOwner, _id: null };
-        const update = { name: 'testHasKeys', notes: 'testHasKeys' };
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "_id" is missing');
       }
     });
 
-    it('should throw an error if "_id" is not a String', async () => {
+    it('should throw an error if "_id" is invalid ObjectID', async () => {
+      const badDoc = { owner: pfloOwner, _id: 666 };
+      const update = { name: 'testHasKeys', notes: 'testHasKeys' };
       try {
-        const badDoc = { owner: pfloOwner, _id: 666 };
-        const update = { name: 'testHasKeys', notes: 'testHasKeys' };
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Invalid parameter "_id"');
       }
     });
 
-    it('should throw an error when given invalid updates', async () => {
+    it('should throw an error when "name" is not a string', async () => {
+      const badDoc = { owner: pfloOwner, _id: pfloID1 };
+      const update = { name: 666, notes: '666' };
       try {
-        const badDoc = { owner: pfloOwner, _id: pfloID1 };
-        const update = { name: 666, notes: 666 };
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'invalid portfolio update properties');
+        assert.equal(err.message, 'Invalid parameter "name"');
+      }
+    });
+
+    it('should throw an error when "notes" is not a string', async () => {
+      const badDoc = { owner: pfloOwner, _id: pfloID1 };
+      const update = { name: 'testing name', notes: 666 };
+      try {
+        const result = await Portfolios.update(badDoc, update);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err.message, 'Invalid parameter "notes"');
       }
     });
 
@@ -445,19 +456,19 @@ describe('Portfolios model', () => {
 
     it('should throw an error if "owner" param is omitted', async () => {
       try {
-        const result = await Portfolios.deletePortfolio(null, pfloID1);
+        const result = await Portfolios.deletePortfolio(undefined, pfloID1);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw an error if "owner" is not a String', async () => {
+    it('should throw an error if "owner" is invalid ObjectID', async () => {
       try {
         const result = await Portfolios.deletePortfolio(666, pfloID1);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
@@ -466,16 +477,16 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deletePortfolio(pfloOwner);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "_id" is missing');
       }
     });
 
-    it('should throw an error if "_id" is not a String', async () => {
+    it('should throw an error if "_id" is invalid ObjectID', async () => {
       try {
         const result = await Portfolios.deletePortfolio(pfloOwner, 666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Invalid parameter "_id"');
       }
     });
 
@@ -510,40 +521,40 @@ describe('Portfolios model', () => {
 
     it('should throw an error if "owner" omitted', async () => {
       try {
-        const result = await Portfolios.hasHolding(null, pfloID1, 'MSFT');
+        const result = await Portfolios.hasHolding(undefined, pfloID1, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
 
     });
 
-    it('should throw an error if "owner" is not a String', async () => {
+    it('should throw an error if "owner" is invalid ObjectID', async () => {
       try {
         const result = await Portfolios.hasHolding(666, pfloID1, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
 
     });
 
     it('should throw an error if "_id" omitted', async () => {
       try {
-        const result = await Portfolios.hasHolding(pfloOwner, null, 'MSFT');
+        const result = await Portfolios.hasHolding(pfloOwner, undefined, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "_id" is missing');
       }
 
     });
 
-    it('should throw an error if "_id" is not a String', async () => {
+    it('should throw an error if "_id" is invalid ObjectID', async () => {
       try {
         const result = await Portfolios.hasHolding(pfloOwner, 666, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Invalid parameter "_id"');
       }
 
     });
@@ -553,17 +564,17 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(pfloOwner, pfloID1);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `ticker`');
+        assert.equal(err.message, 'Required parameter "ticker" is missing');
       }
 
     });
 
-    it('should throw an error if "ticker" is not a String', async () => {
+    it('should throw an error if "ticker" is invalid', async () => {
       try {
         const result = await Portfolios.hasHolding(pfloOwner, pfloID1, 666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `ticker`');
+        assert.equal(err.message, 'Invalid parameter "ticker"');
       }
 
     });
@@ -624,69 +635,91 @@ describe('Portfolios model', () => {
     });
 
     it('should throw an error if "owner" omitted', async () => {
-      const pflo    = { owner  : null,   _id : pfloID1 };
+      const pflo    = { _id : pfloID1 };
       const holding = { ticker : 'GOOG', qty : 2 };
       try {
         const result  = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw an error if "owner" is not a string', async () => {
+    it('should throw an error if "owner" is invalid ObjectId', async () => {
       const pflo    = { owner  : 666,    _id : pfloID1 };
       const holding = { ticker : 'GOOG', qty : 2 };
       try {
         const result  = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
     it('should throw an error if "_id" omitted', async () => {
-      const pflo    = { owner  : pfloOwner, _id : null };
+      const pflo    = { owner  : pfloOwner };
       const holding = { ticker : 'GOOG',    qty : 2 };
       try {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "_id" is missing');
       }
     });
 
-    it('should throw an error if "_id" is not a String', async () => {
+    it('should throw an error if "_id" is invalid ObjectId', async () => {
       const pflo    = { owner  : pfloOwner, _id : 666 };
       const holding = { ticker : 'GOOG',    qty : 2 };
       try {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Invalid parameter "_id"');
       }
     });
 
     it('should throw an error if "ticker" omitted', async () => {
       const pflo    = { owner  : pfloOwner, _id : pfloID1 };
-      const holding = { ticker : null,      qty : 2 };
+      const holding = { qty : 2 };
       try {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `ticker`');
+        assert.equal(err.message, 'Required parameter "ticker" is missing');
       }
 
     });
 
-    it('should throw an error if "ticker" is not a String', async () => {
+    it('should throw an error if "ticker" is invalid', async () => {
       const pflo    = { owner  : pfloOwner, _id : pfloID1 };
       const holding = { ticker : 666,       qty : 2 };
       try {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `ticker`');
+        assert.equal(err.message, 'Invalid parameter "ticker"');
+      }
+    });
+
+    it('should throw an error if "qty" omitted', async () => {
+      const pflo    = { owner  : pfloOwner, _id : pfloID1 };
+      const holding = { ticker : 'GOOG' };
+      try {
+        const result = await Portfolios.addHolding(pflo, holding);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err.message, 'Required parameter "qty" is missing');
+      }
+    });
+
+    it('should throw an error if "qty" is invalid', async () => {
+      const pflo    = { owner  : pfloOwner, _id : pfloID1 };
+      const holding = { ticker : 'GOOG',    qty: '666'};
+      try {
+        const result = await Portfolios.addHolding(pflo, holding);
+        if (result) { throw new Error('this block should not execute'); }
+      } catch (err) {
+        assert.equal(err.message, 'Invalid parameter "qty"');
       }
     });
 
@@ -732,90 +765,90 @@ describe('Portfolios model', () => {
     });
 
     it('should throw if "owner" is omitted', async () => {
-      const query  = { owner: null, pfloId: pfloID1, hldgId: pflo1hlngId };
+      const query  = { pfloId: pfloID1, hldgId: pflo1hlngId };
       const update = 1234;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw if "owner" is not a string', async () => {
+    it('should throw if "owner" is invalid ObjectID', async () => {
       const query  = { owner: 666, pfloId: pfloID1, hldgId: pflo1hlngId };
       const update = 1234;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
     it('should throw if "pfloId" is omitted', async () => {
-      const query  = { owner: pfloOwner, pfloId: null, hldgId: pflo1hlngId };
+      const query  = { owner: pfloOwner, hldgId: pflo1hlngId };
       const update = 1234;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "pfloId" is missing');
       }
     });
 
-    it('should throw if "pfloId" is not a string', async () => {
+    it('should throw if "pfloId" is invalid ObjectID', async () => {
       const query  = { owner: pfloOwner, pfloId: 666, hldgId: pflo1hlngId };
       const update = 1234;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Invalid parameter "pfloId"');
       }
     });
 
     it('should throw if "hldgId" is omitted', async () => {
-      const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: null };
+      const query  = { owner: pfloOwner, pfloId: pfloID1 };
       const update = 1234;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid holding `_id`');
+        assert.equal(err.message, 'Required parameter "hldgId" is missing');
       }
     });
 
-    it('should throw if "hldgId" is not a string', async () => {
+    it('should throw if "hldgId" is invalid ObjectID', async () => {
       const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: 666 };
       const update = 1234;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid holding `_id`');
+        assert.equal(err.message, 'Invalid parameter "hldgId"');
       }
     });
 
     it('should throw if `qty` is omitted', async () => {
       const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: pflo1hlngId };
-      const update = null;
+      const update = undefined;
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid `qty`');
+        assert.equal(err.message, 'Required parameter "qty" is missing');
       }
     });
 
-    it('should throw if `qty` is not a number', async () => {
+    it('should throw if `qty` is invalid', async () => {
       const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: pflo1hlngId };
       const update = '1234';
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid `qty`');
+        assert.equal(err.message, 'Invalid parameter "qty"');
       }
     });
 
@@ -859,62 +892,62 @@ describe('Portfolios model', () => {
     });
     
     it('should throw if "owner" is omitted', async () => {
-      const query  = { owner: null, pfloId: pfloID1, hldgId: pflo1hlngId };
+      const query  = { pfloId: pfloID1, hldgId: pflo1hlngId };
       try {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Required parameter "owner" is missing');
       }
     });
 
-    it('should throw if "owner" is not a string', async () => {
+    it('should throw if "owner" is invalid ObjectID', async () => {
       const query  = { owner: 666, pfloId: pfloID1, hldgId: pflo1hlngId };
       try {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `owner`');
+        assert.equal(err.message, 'Invalid parameter "owner"');
       }
     });
 
     it('should throw if "pfloId" is omitted', async () => {
-      const query  = { owner: pfloOwner, pfloId: null, hldgId: pflo1hlngId };
+      const query  = { owner: pfloOwner, hldgId: pflo1hlngId };
       try {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Required parameter "pfloId" is missing');
       }
     });
 
-    it('should throw if "pfloId" is not a string', async () => {
+    it('should throw if "pfloId" is invalid ObjectID', async () => {
       const query  = { owner: pfloOwner, pfloId: 666, hldgId: pflo1hlngId };
       try {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid portfolio `_id`');
+        assert.equal(err.message, 'Invalid parameter "pfloId"');
       }
     });
 
     it('should throw if "hldgId" is omitted', async () => {
-      const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: null };
+      const query  = { owner: pfloOwner, pfloId: pfloID1, };
       try {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid holding `_id`');
+        assert.equal(err.message, 'Required parameter "hldgId" is missing');
       }
     });
 
-    it('should throw if "hldgId" is not a string', async () => {
+    it('should throw if "hldgId" is invalid ObjectID', async () => {
       const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: 666 };
       try {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err, 'missing or invalid holding `_id`');
+        assert.equal(err.message, 'Invalid parameter "hldgId"');
       }
     });
 
