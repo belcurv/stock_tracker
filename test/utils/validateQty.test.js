@@ -8,7 +8,7 @@ const validateQty = require('../../utils/validateQty');
 
 /* ================================= TESTS ================================= */
 
-describe('Utility: validateNames', () => {
+describe('Utility: validateQty', () => {
 
   it('should be a function', () => {
     assert.isFunction(validateQty);
