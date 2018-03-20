@@ -4,7 +4,7 @@ const validateNames     = require('./validateNames');
 const validateNotes     = require('./validateNotes');
 const validateQty       = require('./validateQty');
 
-const schema = {
+const defaultSchema = {
   _id    : validateObjectIds,
   hldgId : validateObjectIds,
   owner  : validateObjectIds,
@@ -15,23 +15,33 @@ const schema = {
   qty    : validateQty
 };
 
-/** Wholesale Model Data Validation Utility
- *  Loops over array of params, checking each against schema
- * 
- *  @param   {Array}  paramsList   Array of arrays of key value pairs
- *  @throws  {Error}               Error specific to failed check
- *  @returns {Boolean}             Returns true if all params are valid
-*/
-module.exports = function(paramsList) {
 
-  for (let i = 0; i < paramsList.length; i += 1) {
-    let type  = paramsList[i].type;
-    let input = paramsList[i].value;
-    if (!schema[type](input)) {
-      throw new Error(`Invalid parameter "${type}"`);
-    }
+module.exports = class ModelParamValidator {
+  
+  /** Instantiates validators with passed or default schema
+   * 
+   *  @param   {Object}   schema   Optional custom schema object
+  */
+  constructor(schema = defaultSchema) {
+    this.schema = schema;
   }
-
-  return true;
+  
+  /** Wholesale Model Data Validation Utility
+   *  Loops over array of params, checking each against schema
+   * 
+   *  @param   {Array}    params   Array of arrays of key value pairs
+   *  @throws  {Error}             Error specific to failed check
+   *  @returns {Boolean}           Returns true if all params are valid
+  */
+  check(params) {
+    for (let param of params) {
+      let type  = param.type;
+      let value = param.value;
+      if (!this.schema[type](value)) {
+        throw new Error(`Validation Error: Invalid "${type}": ${value}`);
+      }
+    }
+    return true;
+  }
 
 };

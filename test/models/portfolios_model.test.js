@@ -120,7 +120,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.getAll(666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -174,7 +174,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.getOne(666, dummyPflos[0]._id);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -192,7 +192,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.getOne(pfloOwner, 666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "_id"');
+        assert.equal(err.message, 'Validation Error: Invalid "_id": 666');
       }
     });
 
@@ -267,7 +267,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -287,7 +287,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "name"');
+        assert.equal(err.message, 'Validation Error: Invalid "name": 666');
       }
     });
 
@@ -297,7 +297,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "notes"');
+        assert.equal(err.message, 'Validation Error: Invalid "notes": 666');
       }
     });
 
@@ -377,7 +377,7 @@ describe('Portfolios model', () => {
         const result    = await Portfolios.update(badTarget, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -399,7 +399,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "_id"');
+        assert.equal(err.message, 'Validation Error: Invalid "_id": 666');
       }
     });
 
@@ -410,7 +410,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "name"');
+        assert.equal(err.message, 'Validation Error: Invalid "name": 666');
       }
     });
 
@@ -421,7 +421,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "notes"');
+        assert.equal(err.message, 'Validation Error: Invalid "notes": 666');
       }
     });
 
@@ -468,7 +468,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deletePortfolio(666, pfloID1);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -486,7 +486,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deletePortfolio(pfloOwner, 666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "_id"');
+        assert.equal(err.message, 'Validation Error: Invalid "_id": 666');
       }
     });
 
@@ -534,7 +534,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(666, pfloID1, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
 
     });
@@ -554,7 +554,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(pfloOwner, 666, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "_id"');
+        assert.equal(err.message, 'Validation Error: Invalid "_id": 666');
       }
 
     });
@@ -574,7 +574,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(pfloOwner, pfloID1, 666);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "ticker"');
+        assert.equal(err.message, 'Validation Error: Invalid "ticker": 666');
       }
 
     });
@@ -652,7 +652,7 @@ describe('Portfolios model', () => {
         const result  = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -674,7 +674,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "_id"');
+        assert.equal(err.message, 'Validation Error: Invalid "_id": 666');
       }
     });
 
@@ -697,7 +697,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "ticker"');
+        assert.equal(err.message, 'Validation Error: Invalid "ticker": 666');
       }
     });
 
@@ -719,7 +719,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "qty"');
+        assert.equal(err.message, 'Validation Error: Invalid "qty": 666');
       }
     });
 
@@ -782,7 +782,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -804,7 +804,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "pfloId"');
+        assert.equal(err.message, 'Validation Error: Invalid "pfloId": 666');
       }
     });
 
@@ -826,7 +826,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "hldgId"');
+        assert.equal(err.message, 'Validation Error: Invalid "hldgId": 666');
       }
     });
 
@@ -848,7 +848,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "qty"');
+        assert.equal(err.message, 'Validation Error: Invalid "qty": 1234');
       }
     });
 
@@ -907,7 +907,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "owner"');
+        assert.equal(err.message, 'Validation Error: Invalid "owner": 666');
       }
     });
 
@@ -927,7 +927,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "pfloId"');
+        assert.equal(err.message, 'Validation Error: Invalid "pfloId": 666');
       }
     });
 
@@ -947,7 +947,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Invalid parameter "hldgId"');
+        assert.equal(err.message, 'Validation Error: Invalid "hldgId": 666');
       }
     });
 
