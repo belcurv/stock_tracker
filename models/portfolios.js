@@ -2,12 +2,13 @@
 
 /* ================================= SETUP ================================= */
 
-const sanitize = require('../utils/sanitizeMongoQuery');
-const ObjectID = require('mongodb').ObjectID;
-const db       = require('../db');
+const ObjectID  = require('mongodb').ObjectID;
+const db        = require('../db');
 
-const required = require('../utils/requiredParam');
-const validate = require('../utils/validateModelParams');
+const sanitize  = require('../utils/sanitizeMongoQuery');
+const required  = require('../utils/requiredParam');
+const Validator = require('../utils/validateModelParams');
+const validate  = new Validator();
 
 
 /* ============================ PUBLIC METHODS ============================= */
@@ -19,7 +20,7 @@ const validate = require('../utils/validateModelParams');
 */
 const getAll = (owner = required('owner')) => {
 
-  validate([{ type: 'owner', value: owner }]);
+  validate.check([{ type: 'owner', value: owner }]);
 
   const collection = db.get().collection('portfolios');
   const target     = { owner };
@@ -43,7 +44,7 @@ const getOne = (
   _id   = required('_id')
 ) => {
 
-  validate([{ type: 'owner', value: owner }, { type: '_id', value : _id }]);
+  validate.check([{ type: 'owner', value: owner }, { type: '_id', value : _id }]);
 
   const collection = db.get().collection('portfolios');
   const target     = {
@@ -73,7 +74,7 @@ const create = ({
 
   notes = notes || '';
 
-  validate([
+  validate.check([
     { type: 'owner', value: owner },
     { type: 'name',  value: name },
     { type: 'notes', value: notes }
@@ -110,7 +111,7 @@ const update = (
   { name, notes }
 ) => {
 
-  validate([
+  validate.check([
     { type: 'owner', value: owner },
     { type: '_id',   value: _id },
     { type: 'name',  value: name },
@@ -148,7 +149,7 @@ const deletePortfolio = (
   _id   = required('_id')
 ) => {
 
-  validate([
+  validate.check([
     { type: 'owner', value: owner },
     { type: '_id',   value: _id }
   ]);
@@ -178,7 +179,7 @@ const hasHolding = (
   ticker = required('ticker')
 ) => {
 
-  validate([
+  validate.check([
     { type: 'owner',  value: owner },
     { type: '_id',    value: _id },
     { type: 'ticker', value: ticker }
@@ -213,7 +214,7 @@ const addHolding = (
   {ticker = required('ticker'), qty = required('qty')}
 ) => {
 
-  validate([
+  validate.check([
     { type: 'owner',  value: owner },
     { type: '_id',    value: _id },
     { type: 'ticker', value: ticker },
@@ -272,7 +273,7 @@ const updateHolding = (
   qty = required('qty')
 ) => {
 
-  validate([
+  validate.check([
     { type: 'owner',  value: owner },
     { type: 'pfloId', value: pfloId },
     { type: 'hldgId', value: hldgId },
@@ -316,7 +317,7 @@ const deleteHolding = ({
   hldgId = required('hldgId')
 }) => {
 
-  validate([
+  validate.check([
     { type: 'owner',  value: owner },
     { type: 'pfloId', value: pfloId },
     { type: 'hldgId', value: hldgId }
