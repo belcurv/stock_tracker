@@ -20,7 +20,7 @@ const validate  = new Validator();
 */
 const getAll = (owner = required('owner')) => {
 
-  validate.check([{ type: 'owner', value: owner }]);
+  validate.check({ owner });
 
   const collection = db.get().collection('portfolios');
   const target     = { owner };
@@ -35,20 +35,20 @@ const getAll = (owner = required('owner')) => {
 
 /**
  * Get one portfolio
- * @param    {String}   owner   User _id
- * @param    {String}   _id     Portfolio _id
- * @returns  {Object}           Promise + portfolio
+ * @param    {String}   owner    User _id
+ * @param    {String}   pfloId   Portfolio _id
+ * @returns  {Object}            Promise + portfolio
  */
 const getOne = (
-  owner = required('owner'), 
-  _id   = required('_id')
+  owner  = required('owner'), 
+  pfloId = required('pfloId')
 ) => {
 
-  validate.check([{ type: 'owner', value: owner }, { type: '_id', value : _id }]);
+  validate.check({ owner, pfloId });
 
   const collection = db.get().collection('portfolios');
   const target     = {
-    _id : ObjectID(_id),
+    _id : ObjectID(pfloId),
     owner
   };
   
@@ -74,11 +74,7 @@ const create = ({
 
   notes = notes || '';
 
-  validate.check([
-    { type: 'owner', value: owner },
-    { type: 'name',  value: name },
-    { type: 'notes', value: notes }
-  ]);
+  validate.check({ owner, name, notes });
 
   const collection = db.get().collection('portfolios');
   const now        = Date.now();
@@ -100,28 +96,23 @@ const create = ({
 
 /**
  * Update a portfolio
- * @param    {String}   owner   User _id
- * @param    {String}   _id     Portfolio _id
- * @param    {String}   name    Portfolio name
- * @param    {String}   notes   Notes about the portfolio
- * @returns  {Object}           Promise + updated portfolio
+ * @param    {String}   owner    User _id
+ * @param    {String}   pfloId   Portfolio _id
+ * @param    {String}   name     Portfolio name
+ * @param    {String}   notes    Notes about the portfolio
+ * @returns  {Object}            Promise + updated portfolio
 */
 const update = (
-  { owner = required('owner'), _id = required('_id') },
+  { owner = required('owner'), pfloId = required('pfloId') },
   { name, notes }
 ) => {
 
-  validate.check([
-    { type: 'owner', value: owner },
-    { type: '_id',   value: _id },
-    { type: 'name',  value: name },
-    { type: 'notes', value: notes }
-  ]);
+  validate.check({ owner, pfloId, name, notes });
 
   const collection = db.get().collection('portfolios');
   
   const filter = {
-    _id   : ObjectID(_id),
+    _id   : ObjectID(pfloId),
     owner : owner
   };
   
@@ -140,23 +131,20 @@ const update = (
 
 /**
  * Delete a user's portfolio
- * @param    {String}   owner   User _id
- * @param    {String}   _id     Portfolio _id
- * @returns  {Object}           Promise
+ * @param    {String}   owner    User _id
+ * @param    {String}   pfloId   Portfolio _id
+ * @returns  {Object}            Promise
 */
 const deletePortfolio = (
-  owner = required('owner'),
-  _id   = required('_id')
+  owner  = required('owner'),
+  pfloId = required('pfloId')
 ) => {
 
-  validate.check([
-    { type: 'owner', value: owner },
-    { type: '_id',   value: _id }
-  ]);
+  validate.check({ owner, pfloId });
 
   const collection = db.get().collection('portfolios');
-  const target     = {
-    _id   : ObjectID(_id),
+  const target = {
+    _id   : ObjectID(pfloId),
     owner : owner
   };
 
@@ -169,26 +157,22 @@ const deletePortfolio = (
 /**
  * Check if a portfolio has a specific holding
  * @param    {String}   owner    User _id
- * @param    {String}   _id      Portfolio _id
+ * @param    {String}   pfloId   Portfolio _id
  * @param    {String}   ticker   Holding's ticker symbol
  * @returns  {Boolean}           True if portfolio contains specified holding
 */
 const hasHolding = (
   owner  = required('owner'),
-  _id    = required('_id'),
+  pfloId = required('pfloId'),
   ticker = required('ticker')
 ) => {
 
-  validate.check([
-    { type: 'owner',  value: owner },
-    { type: '_id',    value: _id },
-    { type: 'ticker', value: ticker }
-  ]);
+  validate.check({ owner, pfloId, ticker });
 
   const collection = db.get().collection('portfolios');
 
   const target = {
-    _id               : ObjectID(_id),
+    _id               : ObjectID(pfloId),
     owner             : owner,
     'holdings.ticker' : sanitize(ticker).toString().trim()
   };
@@ -204,28 +188,23 @@ const hasHolding = (
 /**
  * Add holding to portfolio
  * @param    {String}   owner    User _id
- * @param    {String}   _id      Portfolio _id
+ * @param    {String}   pfloId   Portfolio _id
  * @param    {String}   ticker   Holding's ticker symbol
  * @param    {Number}   qty      Qty of shares owned
  * @returns  {Object}            Updated portfolio; holdings sorted by ticker
 */
 const addHolding = (
-  {owner  = required('owner'),  _id = required('_id')}, 
-  {ticker = required('ticker'), qty = required('qty')}
+  {owner  = required('owner'),  pfloId = required('pfloId')}, 
+  {ticker = required('ticker'), qty    = required('qty')}
 ) => {
 
-  validate.check([
-    { type: 'owner',  value: owner },
-    { type: '_id',    value: _id },
-    { type: 'ticker', value: ticker },
-    { type: 'qty',    value: qty }
-  ]);
+  validate.check({ owner, pfloId, ticker, qty });
 
   const collection = db.get().collection('portfolios');
   const now = Date.now();
 
   const filter = {
-    _id   : ObjectID(_id),
+    _id   : ObjectID(pfloId),
     owner : owner
   };
   
@@ -273,12 +252,7 @@ const updateHolding = (
   qty = required('qty')
 ) => {
 
-  validate.check([
-    { type: 'owner',  value: owner },
-    { type: 'pfloId', value: pfloId },
-    { type: 'hldgId', value: hldgId },
-    { type: 'qty',    value: qty }
-  ]);
+  validate.check({ owner, pfloId, hldgId, qty });
 
   const collection = db.get().collection('portfolios');
 
@@ -317,11 +291,7 @@ const deleteHolding = ({
   hldgId = required('hldgId')
 }) => {
 
-  validate.check([
-    { type: 'owner',  value: owner },
-    { type: 'pfloId', value: pfloId },
-    { type: 'hldgId', value: hldgId }
-  ]);
+  validate.check({ owner, pfloId, hldgId });
 
   const collection = db.get().collection('portfolios');
 
