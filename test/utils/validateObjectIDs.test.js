@@ -8,7 +8,7 @@ const validateObjectIds = require('../../utils/validateObjectIds');
 
 /* ================================= TESTS ================================= */
 
-describe('Utility: validateNames', () => {
+describe('Utility: validateObjectIDs', () => {
 
   it('should be a function', () => {
     assert.isFunction(validateObjectIds);
@@ -18,16 +18,25 @@ describe('Utility: validateNames', () => {
     assert.isTrue(validateObjectIds('0123abcdef456789acdef012'));
   });
 
-  it('should return false for invalid ObjectIDs', () => {
-    assert.isFalse(validateObjectIds('0123abcdef456789ghghg012'));
-  });
-
-  it('should return false for invalid ObjectIDs', () => {
-    assert.isFalse(validateObjectIds(666));
-  });
-
   it('should throw exception when "_id" omitted', () => {
-    assert.throws(validateObjectIds, /Missing required "_id" parameter/);
+    const call = function () {
+      validateObjectIds(undefined, 'ObjectID');
+    };
+    assert.throws(call, 'Missing required "ObjectID" parameter');
+  });
+
+  it('should throw exception for invalid ObjectIDs', () => {
+    const call = function () {
+      validateObjectIds('0123abcdef456789ghghg012', 'ObjectID');
+    };
+    assert.throws(call, 'Validation Error: Invalid "ObjectID": 0123abcdef456789ghghg012');
+  });
+
+  it('should throw exception for invalid ObjectIDs', () => {
+    const call = function () {
+      validateObjectIds(666, 'ObjectID');
+    };
+    assert.throws(call, 'Validation Error: Invalid "ObjectID": 666');
   });
 
 });

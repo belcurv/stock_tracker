@@ -22,16 +22,18 @@ describe('Utility: validateNotes', () => {
     assert.isTrue(validateNotes('Warhammer 40k'));
   });
 
-  it('should return false non-string values', () => {
-    assert.isFalse(validateNotes(666));
+  it('should throw exception for non-string values', () => {
+    const call = function () {
+      validateNotes(666);
+    };
+    assert.throws(call, 'Validation Error: Invalid "notes": 666');
   });
 
-  it('should return false non-string values', () => {
-    assert.isFalse(validateNotes(true));
-  });
-
-  it('should throw exception if "notes" param omitted', () => {
-    assert.throws(validateNotes, /Missing required "notes" parameter/);
+  it('should throw exception for non-string values', () => {
+    const call = function () {
+      validateNotes(true);
+    };
+    assert.throws(call, 'Validation Error: Invalid "notes": true');
   });
 
 });
