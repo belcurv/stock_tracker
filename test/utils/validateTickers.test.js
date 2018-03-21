@@ -22,16 +22,22 @@ describe('Utility: validateNames', () => {
     assert.isTrue(validateTickers('GE'));
   });
 
-  it('should return false for "goog"', () => {
-    assert.isFalse(validateTickers('goog'));
-  });
-
-  it('should return false when "ticker" is not a number', () => {
-    assert.isFalse(validateTickers(666));
-  });
-
   it('should throw exception when "ticker" omitted', () => {
     assert.throws(validateTickers, /Missing required "ticker" parameter/);
+  });
+
+  it('should throw exception for "goog"', () => {
+    const call = function () {
+      validateTickers('goog');
+    };
+    assert.throws(call, 'Validation Error: Invalid "ticker": goog');
+  });
+
+  it('should throw exception when "ticker" is not a number', () => {
+    const call = function () {
+      validateTickers(666);
+    };
+    assert.throws(call, 'Validation Error: Invalid "ticker": 666');
   });
 
 });

@@ -5,10 +5,9 @@ const validateNotes     = require('./validateNotes');
 const validateQty       = require('./validateQty');
 
 const defaultSchema = {
-  _id    : validateObjectIds,
-  hldgId : validateObjectIds,
   owner  : validateObjectIds,
   pfloId : validateObjectIds,
+  hldgId : validateObjectIds,
   ticker : validateTickers,
   name   : validateNames,
   notes  : validateNotes,
@@ -19,27 +18,22 @@ const defaultSchema = {
 module.exports = class ModelParamValidator {
   
   /** Instantiates validators with passed or default schema
-   * 
    *  @param   {Object}   schema   Optional custom schema object
   */
   constructor(schema = defaultSchema) {
     this.schema = schema;
   }
-  
+
+
   /** Wholesale Model Data Validation Utility
-   *  Loops over array of params, checking each against schema
-   * 
-   *  @param   {Array}    params   Array of arrays of key value pairs
+   *  Iterates over params, checking key-value pair each against schema
+   *  @param   {Object}   params   Shape { schema_type : value }
    *  @throws  {Error}             Error specific to failed check
    *  @returns {Boolean}           Returns true if all params are valid
   */
   check(params) {
-    for (let param of params) {
-      let type  = param.type;
-      let value = param.value;
-      if (!this.schema[type](value)) {
-        throw new Error(`Validation Error: Invalid "${type}": ${value}`);
-      }
+    for (let key in params) {
+      this.schema[key](params[key], key);
     }
     return true;
   }

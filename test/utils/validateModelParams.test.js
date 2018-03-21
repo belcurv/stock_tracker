@@ -5,9 +5,23 @@
 const { assert } = require('chai');
 const Validator  = require('../../utils/validateModelParams');
 
+function checkString(val) {
+  if (typeof val !== 'string') {
+    throw new Error(`Invalid "string": ${val}`);
+  }
+  return true;
+}
+
+function checkNumber(val) {
+  if (typeof val !== 'number') {
+    throw new Error(`Invalid "number": ${val}`);
+  }
+  return true;
+}
+
 const testSchema = {
-  string : (val) => typeof val === 'string',
-  number : (val) => typeof val === 'number'
+  string : checkString,
+  number : checkNumber
 };
 
 
@@ -46,23 +60,23 @@ describe('Utility: validateModelParams', () => {
   });
 
   it('instances should return true for valid string "yay"', () => {
-    assert.isTrue(validator.check([{ type: 'string', value: 'yay' }]));
+    assert.isTrue(validator.check({ string: 'yay' }));
   });
 
   it('instances should return true for valid number 666', () => {
-    assert.isTrue(validator.check([{ type: 'number', value: 666 }]));
+    assert.isTrue(validator.check({ number: 666 }));
   });
 
   it('instances should throw exception for invalid string', () => {
     const call = function() {
-      validator.check([{ type: 'string', value: 666 }]);
+      validator.check({ string: 666 });
     };
     assert.throws(call, 'Invalid "string": 666');
   });
 
   it('instances should throw exception for invalid number', () => {
     const call = function() {
-      validator.check([{ type: 'number', value: 'bananas' }]);
+      validator.check({ number: 'bananas' });
     };
     assert.throws(call, 'Invalid "number": bananas');
   });

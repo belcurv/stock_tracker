@@ -18,16 +18,22 @@ describe('Utility: validateQty', () => {
     assert.isTrue(validateQty(1111));
   });
 
-  it('should return false when "qty" is a negative number', () => {
-    assert.isFalse(validateQty(-2222));
-  });
-
-  it('should return false when "qty" is not a number', () => {
-    assert.isFalse(validateQty('666'));
-  });
-
   it('should throw exception when "qty" omitted', () => {
     assert.throws(validateQty, /Missing required "qty" parameter/);
+  });
+
+  it('should throw exception when "qty" is a negative number', () => {
+    const call = function () {
+      validateQty(-2222);
+    };
+    assert.throws(call, /Validation Error: Invalid "qty": -2222/);
+  });
+
+  it('should throw exception when "qty" is not a number', () => {
+    const call = function () {
+      validateQty('666');
+    };
+    assert.throws(call, /Validation Error: Invalid "qty": 666/);
   });
 
 });
