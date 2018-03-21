@@ -111,7 +111,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.getAll();
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -165,7 +165,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.getOne(undefined, dummyPflos[0]._id);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -183,7 +183,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.getOne(pfloOwner);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
     });
 
@@ -257,7 +257,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -277,7 +277,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.create(badDoc);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "name" is missing');
+        assert.equal(err.message, 'Missing required "name" parameter');
       }
     });
 
@@ -366,7 +366,7 @@ describe('Portfolios model', () => {
         const result    = await Portfolios.update(badTarget, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -388,7 +388,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.update(badDoc, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
     });
 
@@ -459,7 +459,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deletePortfolio(undefined, pfloID1);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -477,7 +477,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deletePortfolio(pfloOwner);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
     });
 
@@ -524,7 +524,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(undefined, pfloID1, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
 
     });
@@ -544,7 +544,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(pfloOwner, undefined, 'MSFT');
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
 
     });
@@ -564,7 +564,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.hasHolding(pfloOwner, pfloID1);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "ticker" is missing');
+        assert.equal(err.message, 'Missing required "ticker" parameter');
       }
 
     });
@@ -641,7 +641,7 @@ describe('Portfolios model', () => {
         const result  = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -663,7 +663,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
     });
 
@@ -685,7 +685,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "ticker" is missing');
+        assert.equal(err.message, 'Missing required "ticker" parameter');
       }
 
     });
@@ -708,7 +708,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.addHolding(pflo, holding);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "qty" is missing');
+        assert.equal(err.message, 'Missing required "qty" parameter');
       }
     });
 
@@ -771,7 +771,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -793,7 +793,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
     });
 
@@ -815,7 +815,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "hldgId" is missing');
+        assert.equal(err.message, 'Missing required "hldgId" parameter');
       }
     });
 
@@ -837,18 +837,18 @@ describe('Portfolios model', () => {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "qty" is missing');
+        assert.equal(err.message, 'Missing required "qty" parameter');
       }
     });
 
     it('should throw if `qty` is invalid', async () => {
       const query  = { owner: pfloOwner, pfloId: pfloID1, hldgId: pflo1hlngId };
-      const update = '1234';
+      const update = '666';
       try {
         const result = await Portfolios.updateHolding(query, update);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Validation Error: Invalid "qty": 1234');
+        assert.equal(err.message, 'Validation Error: Invalid "qty": 666');
       }
     });
 
@@ -897,7 +897,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "owner" is missing');
+        assert.equal(err.message, 'Missing required "owner" parameter');
       }
     });
 
@@ -917,7 +917,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "pfloId" is missing');
+        assert.equal(err.message, 'Missing required "pfloId" parameter');
       }
     });
 
@@ -937,7 +937,7 @@ describe('Portfolios model', () => {
         const result = await Portfolios.deleteHolding(query);
         if (result) { throw new Error('this block should not execute'); }
       } catch (err) {
-        assert.equal(err.message, 'Required parameter "hldgId" is missing');
+        assert.equal(err.message, 'Missing required "hldgId" parameter');
       }
     });
 
