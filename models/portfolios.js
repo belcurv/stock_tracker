@@ -6,7 +6,6 @@ const ObjectID  = require('mongodb').ObjectID;
 const db        = require('../db');
 
 const sanitize  = require('../utils/sanitizeMongoQuery');
-const required  = require('../utils/requiredParam');
 const Validator = require('../utils/validateModelParams');
 const validate  = new Validator();
 
@@ -18,7 +17,7 @@ const validate  = new Validator();
  * @param    {String}   owner   User _id
  * @returns  {Object}           Promise + array of portfolios
 */
-const getAll = (owner = required('owner')) => {
+const getAll = (owner) => {
 
   validate.check({ owner });
 
@@ -39,10 +38,7 @@ const getAll = (owner = required('owner')) => {
  * @param    {String}   pfloId   Portfolio _id
  * @returns  {Object}            Promise + portfolio
  */
-const getOne = (
-  owner  = required('owner'), 
-  pfloId = required('pfloId')
-) => {
+const getOne = (owner, pfloId) => {
 
   validate.check({ owner, pfloId });
 
@@ -66,11 +62,7 @@ const getOne = (
  * @param    {String}   notes   Optional notes about the portfolio
  * @returns  {Object}           Promise + new portfolio
 */
-const create = ({
-  owner = required('owner'),
-  name  = required('name'),
-  notes
-}) => {
+const create = ({ owner, name, notes }) => {
 
   notes = notes || '';
 
@@ -102,10 +94,7 @@ const create = ({
  * @param    {String}   notes    Notes about the portfolio
  * @returns  {Object}            Promise + updated portfolio
 */
-const update = (
-  { owner = required('owner'), pfloId = required('pfloId') },
-  { name, notes }
-) => {
+const update = ({ owner, pfloId }, { name, notes }) => {
 
   validate.check({ owner, pfloId, name, notes });
 
@@ -135,10 +124,7 @@ const update = (
  * @param    {String}   pfloId   Portfolio _id
  * @returns  {Object}            Promise
 */
-const deletePortfolio = (
-  owner  = required('owner'),
-  pfloId = required('pfloId')
-) => {
+const deletePortfolio = (owner, pfloId) => {
 
   validate.check({ owner, pfloId });
 
@@ -161,11 +147,7 @@ const deletePortfolio = (
  * @param    {String}   ticker   Holding's ticker symbol
  * @returns  {Boolean}           True if portfolio contains specified holding
 */
-const hasHolding = (
-  owner  = required('owner'),
-  pfloId = required('pfloId'),
-  ticker = required('ticker')
-) => {
+const hasHolding = (owner, pfloId, ticker) => {
 
   validate.check({ owner, pfloId, ticker });
 
@@ -193,10 +175,7 @@ const hasHolding = (
  * @param    {Number}   qty      Qty of shares owned
  * @returns  {Object}            Updated portfolio; holdings sorted by ticker
 */
-const addHolding = (
-  {owner  = required('owner'),  pfloId = required('pfloId')}, 
-  {ticker = required('ticker'), qty    = required('qty')}
-) => {
+const addHolding = ({ owner, pfloId }, { ticker, qty }) => {
 
   validate.check({ owner, pfloId, ticker, qty });
 
@@ -243,14 +222,7 @@ const addHolding = (
  * @param    {Number}   qty      Qty of shares owned
  * @returns  {Object}            Promise + updated portfolio
 */
-const updateHolding = (
-  {
-    owner  = required('owner'),
-    pfloId = required('pfloId'),
-    hldgId = required('hldgId')
-  },
-  qty = required('qty')
-) => {
+const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
 
   validate.check({ owner, pfloId, hldgId, qty });
 
@@ -285,11 +257,7 @@ const updateHolding = (
  * @param    {String}   hldgId   Holding _id
  * @returns  {Object}            Promise + updated portfolio
 */
-const deleteHolding = ({
-  owner  = required('owner'),
-  pfloId = required('pfloId'),
-  hldgId = required('hldgId')
-}) => {
+const deleteHolding = ({ owner, pfloId, hldgId }) => {
 
   validate.check({ owner, pfloId, hldgId });
 
