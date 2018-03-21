@@ -9,10 +9,12 @@ module.exports = (name) => {
 
   if (typeof name === 'undefined') {
     throw new Error('Missing required "name" parameter');
-  } else if (typeof name === 'string') {
-    return name.trim().length > 0 && name.length <= 100;
+  } 
+  
+  if (typeof name !== 'string' || !name.trim().length || name.length > 100) {
+    throw new Error(`Validation Error: Invalid "name": ${name}`);
   }
 
-  return false;
+  return true;
   
 };
