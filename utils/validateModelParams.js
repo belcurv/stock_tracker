@@ -32,12 +32,8 @@ module.exports = class ModelParamValidator {
    *  @returns {Boolean}           Returns true if all params are valid
   */
   check(params) {
-    for (let param in params) {
-      let type  = param;
-      let value = params[param];
-      if (!this.schema[type](value)) {
-        throw new Error(`Validation Error: Invalid "${type}": ${value}`);
-      }
+    for (let key in params) {
+      this.schema[key](params[key], key);
     }
     return true;
   }

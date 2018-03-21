@@ -5,9 +5,23 @@
 const { assert } = require('chai');
 const Validator  = require('../../utils/validateModelParams');
 
+function checkString(val) {
+  if (typeof val !== 'string') {
+    throw new Error(`Invalid "string": ${val}`);
+  }
+  return true;
+}
+
+function checkNumber(val) {
+  if (typeof val !== 'number') {
+    throw new Error(`Invalid "number": ${val}`);
+  }
+  return true;
+}
+
 const testSchema = {
-  string : (val) => typeof val === 'string',
-  number : (val) => typeof val === 'number'
+  string : checkString,
+  number : checkNumber
 };
 
 
