@@ -1,3 +1,5 @@
+const validateUsernames = require('./validateUsernames');
+const validatePwHashes  = require('./validatePwHashes');
 const validateObjectIds = require('./validateObjectIds');
 const validateTickers   = require('./validateTickers');
 const validateNames     = require('./validateNames');
@@ -5,13 +7,15 @@ const validateNotes     = require('./validateNotes');
 const validateQty       = require('./validateQty');
 
 const defaultSchema = {
-  owner  : validateObjectIds,
-  pfloId : validateObjectIds,
-  hldgId : validateObjectIds,
-  ticker : validateTickers,
-  name   : validateNames,
-  notes  : validateNotes,
-  qty    : validateQty
+  username : validateUsernames,
+  pwHash   : validatePwHashes,
+  owner    : validateObjectIds,
+  pfloId   : validateObjectIds,
+  hldgId   : validateObjectIds,
+  ticker   : validateTickers,
+  name     : validateNames,
+  notes    : validateNotes,
+  qty      : validateQty
 };
 
 
