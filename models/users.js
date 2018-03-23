@@ -17,7 +17,11 @@ const validate  = new Validator();
 */
 const usernameExists = (username) => {
 
-  validate.check({ username });
+  try {
+    validate.check({ username });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('users');
 
@@ -38,7 +42,11 @@ const usernameExists = (username) => {
 */
 const createUser = async ({ username, pwHash }) => {
 
-  validate.check({ username, pwHash });
+  try {
+    validate.check({ username, pwHash });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('users');
   const now = Date.now();
@@ -62,7 +70,11 @@ const createUser = async ({ username, pwHash }) => {
 */
 const getUser = async (username) => {
 
-  validate.check({ username });
+  try {
+    validate.check({ username });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('users');
 

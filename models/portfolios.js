@@ -19,7 +19,11 @@ const validate  = new Validator();
 */
 const getAll = (owner) => {
 
-  validate.check({ owner });
+  try {
+    validate.check({ owner });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
   const target     = { owner };
@@ -37,10 +41,14 @@ const getAll = (owner) => {
  * @param    {String}   owner    User _id
  * @param    {String}   pfloId   Portfolio _id
  * @returns  {Object}            Promise + portfolio
- */
+*/
 const getOne = (owner, pfloId) => {
 
-  validate.check({ owner, pfloId });
+  try {
+    validate.check({ owner, pfloId });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
   const target     = {
@@ -66,7 +74,11 @@ const create = ({ owner, name, notes }) => {
 
   notes = notes || '';
 
-  validate.check({ owner, name, notes });
+  try {
+    validate.check({ owner, name, notes });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
   const now        = Date.now();
@@ -96,7 +108,11 @@ const create = ({ owner, name, notes }) => {
 */
 const update = ({ owner, pfloId }, { name, notes }) => {
 
-  validate.check({ owner, pfloId, name, notes });
+  try {
+    validate.check({ owner, pfloId, name, notes });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
   
@@ -126,7 +142,11 @@ const update = ({ owner, pfloId }, { name, notes }) => {
 */
 const deletePortfolio = (owner, pfloId) => {
 
-  validate.check({ owner, pfloId });
+  try {
+    validate.check({ owner, pfloId });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
   const target = {
@@ -149,7 +169,11 @@ const deletePortfolio = (owner, pfloId) => {
 */
 const hasHolding = (owner, pfloId, ticker) => {
 
-  validate.check({ owner, pfloId, ticker });
+  try {
+    validate.check({ owner, pfloId, ticker });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
 
@@ -177,7 +201,11 @@ const hasHolding = (owner, pfloId, ticker) => {
 */
 const addHolding = ({ owner, pfloId }, { ticker, qty }) => {
 
-  validate.check({ owner, pfloId, ticker, qty });
+  try {
+    validate.check({ owner, pfloId, ticker, qty });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
   const now = Date.now();
@@ -224,7 +252,11 @@ const addHolding = ({ owner, pfloId }, { ticker, qty }) => {
 */
 const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
 
-  validate.check({ owner, pfloId, hldgId, qty });
+  try {
+    validate.check({ owner, pfloId, hldgId, qty });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
 
@@ -259,7 +291,11 @@ const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
 */
 const deleteHolding = ({ owner, pfloId, hldgId }) => {
 
-  validate.check({ owner, pfloId, hldgId });
+  try {
+    validate.check({ owner, pfloId, hldgId });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
   const collection = db.get().collection('portfolios');
 
