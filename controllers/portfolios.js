@@ -104,8 +104,8 @@ router.put('/portfolios/:id', (req, res, next) => {
   }
 
   const filter = {
-    owner : req.user._id,
-    _id   : req.params.id
+    owner  : req.user._id,
+    pfloId : req.params.id
   };
   
   const updates = {
@@ -168,7 +168,7 @@ router.post('/portfolios/:id/holdings', async (req, res, next) => {
   }
 
   const owner  = req.user._id;
-  const _id    = req.params.id;
+  const pfloId = req.params.id;
   const ticker = req.body.ticker.toString().trim().toUpperCase();
   const qty    = +req.body.qty;  // coerse to number type
 
@@ -176,11 +176,11 @@ router.post('/portfolios/:id/holdings', async (req, res, next) => {
     return res.status(400).json({ message: badBodyMsg });
   }
 
-  const filter  = { owner, _id };
+  const filter  = { owner, pfloId };
   const updates = { ticker, qty };
 
   // check if holding already exists
-  const holding = await Portfolios.hasHolding(owner, _id, ticker);
+  const holding = await Portfolios.hasHolding(owner, pfloId, ticker);
   if (holding) {
     return res.status(403)
       .json({message: `Holding ${ticker} already exists in portfolio.`});
