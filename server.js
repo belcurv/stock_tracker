@@ -13,8 +13,10 @@ const port       = process.env.PORT || 3000;
 
 /* ================================ CONFIG ================================= */
 
-// enable logger
-app.use(morgan('dev'));
+// enable logger except when testing
+if (process.env.NODE_ENV !== 'testing') {
+  app.use(morgan('dev'));
+}
 
 // enable http request body parsing
 app.use(bodyParser.json());
@@ -44,16 +46,18 @@ app.use(function (err, req, res, next) {
 
 db.connect((err) => {
   if (err) {
-    // bail
     console.log('Unable to connect to MongoDB');
     process.exit(1);
-  } else {
+  }
+  
+  // this check is required for testing, else 'EADDRINUSE:::3000' errors!
+  if (!module.parent) {
     // start server
     app.listen(port, () => console.log(`Listening on port ${port}`));
   }
 
 });
 
-/* ======================== EXPORT APP FOR TESTING ========================= */
+/* ================================ EXPORTS ================================ */
 
 module.exports = app;
