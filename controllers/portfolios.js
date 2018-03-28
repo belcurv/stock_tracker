@@ -2,8 +2,6 @@
 
 /* ================================= SETUP ================================= */
 
-const router      = require('express').Router();
-const verifyJWT   = require('../middleware/verifyJWT');
 const Portfolios  = require('../models/portfolios');
 
 const isOid       = require('../utils/validateObjectIds');
@@ -11,11 +9,6 @@ const isTicker    = require('../utils/validateTickers');
 
 const badParamMsg = 'Malformed URL paramter';
 const badBodyMsg  = 'Malformed request body parameter';
-
-
-/* ============================== MIDDLEWARE =============================== */
-
-router.use(verifyJWT);
 
 
 /* ========================== ROUTE CONTROLLERS ============================ */
@@ -28,12 +21,12 @@ router.use(verifyJWT);
  *    1) user _id from valid JWT
  * Returns: JSON array of portfolio objects
 */
-router.get('/portfolios', (req, res, next) => {
+const getAll = (req, res, next) => {
   Portfolios.getAll(req.user._id)
     .then(portfolios => res.status(200).json(portfolios))
     .catch(err => next(err));
   
-});
+};
 
 
 /**
@@ -45,7 +38,7 @@ router.get('/portfolios', (req, res, next) => {
  *    2) portfolio _id from req params
  * Returns: JSON portfolio objects
 */
-router.get('/portfolios/:id', (req, res, next) => {
+const getOne = (req, res, next) => {
 
   if (!isOid(req.params.id)) {
     return res.status(400).json({ message: badParamMsg});
@@ -55,7 +48,7 @@ router.get('/portfolios/:id', (req, res, next) => {
     .then(portfolio => res.status(200).json(portfolio))
     .catch(err => next(err));
 
-});
+};
 
 
 /**
@@ -66,7 +59,7 @@ router.get('/portfolios/:id', (req, res, next) => {
  *    2) portfolio name from req body
  * Returns: JSON portfolio object
 */
-router.post('/portfolios', (req, res, next) => {
+const create = (req, res, next) => {
 
   if (!req.body.name) {
     return res.status(400).json({ message: 'Portfolio "name" is required.' });
@@ -84,7 +77,7 @@ router.post('/portfolios', (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
   
-});
+};
 
 
 /**
@@ -97,7 +90,7 @@ router.post('/portfolios', (req, res, next) => {
  *    3) updates from req body
  * Returns: JSON portfolio object
 */
-router.put('/portfolios/:id', (req, res, next) => {
+const update = (req, res, next) => {
 
   if (!isOid(req.params.id)) {
     return res.status(400).json({ message: badParamMsg });
@@ -117,7 +110,7 @@ router.put('/portfolios/:id', (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err   => next(err));
 
-});
+};
 
 
 /**
@@ -129,7 +122,7 @@ router.put('/portfolios/:id', (req, res, next) => {
  *    2) portfolio _id from req params
  * Returns: JSON success message
 */
-router.delete('/portfolios/:id', (req, res, next) => {
+const deletePortfolio = (req, res, next) => {
 
   if (!isOid(req.params.id)) {
     return res.status(400).json({ message: badParamMsg });
@@ -139,7 +132,7 @@ router.delete('/portfolios/:id', (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 
-});
+};
 
 
 /**
@@ -152,7 +145,7 @@ router.delete('/portfolios/:id', (req, res, next) => {
  *    3) ticker and qty from req body
  * Returns: JSON portfolio object
 */
-router.post('/portfolios/:id/holdings', async (req, res, next) => {
+const addHolding = async (req, res, next) => {
 
   if (!req.body.ticker || !req.body.qty) {
     return res.status(400)
@@ -190,7 +183,7 @@ router.post('/portfolios/:id/holdings', async (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err   => next(err));
 
-});
+};
 
 
 /**
@@ -204,7 +197,7 @@ router.post('/portfolios/:id/holdings', async (req, res, next) => {
  *    4) qty from req body
  * Returns: JSON portfolio object
 */
-router.put('/portfolios/:pfloId/holdings/:hldgId', (req, res, next) => {
+const updateHolding = (req, res, next) => {
 
   if (!isOid(req.params.pfloId || !isOid(req.params.hldgId))) {
     return res.status(400).json({ message: badParamMsg });
@@ -230,7 +223,7 @@ router.put('/portfolios/:pfloId/holdings/:hldgId', (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 
-});
+};
 
 
 /**
@@ -243,7 +236,7 @@ router.put('/portfolios/:pfloId/holdings/:hldgId', (req, res, next) => {
  *    3) holding _id from req params
  * Returns: JSON success message
 */
-router.delete('/portfolios/:pfloId/holdings/:hldgId', (req, res, next) => {
+const deleteHolding = (req, res, next) => {
 
   if (!isOid(req.params.pfloId || !isOid(req.params.hldgId))) {
     return res.status(400).json({ message: badParamMsg });
@@ -259,9 +252,18 @@ router.delete('/portfolios/:pfloId/holdings/:hldgId', (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 
-});
+};
 
 
 /* ================================ EXPORTS ================================ */
 
-module.exports = router;
+module.exports = {
+  getAll,
+  getOne,
+  create,
+  update,
+  deletePortfolio,
+  addHolding,
+  updateHolding,
+  deleteHolding
+};
