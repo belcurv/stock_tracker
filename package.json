@@ -5,8 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "mocha --recursive",
-    "test:watch": "mocha --timeout 3000 --watch --recursive --reporter min"
+    "test": "mocha --timeout 3000 --exit --recursive",
+    "test:utils": "mocha test/utils --watch --reporter min",
+    "test:models": "mocha test/models --timeout 3000 --watch --reporter min"
   },
   "repository": {
     "type": "git",
