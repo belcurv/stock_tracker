@@ -4,9 +4,7 @@
 
 const bcrypt      = require('bcryptjs');
 const generateJwt = require('../utils/generate-jwt');
-
-const router = require('express').Router();
-const Users  = require('../models/users');
+const Users       = require('../models/users');
 
 
 /* ========================== ROUTE CONTROLLERS ============================ */
@@ -18,7 +16,7 @@ const Users  = require('../models/users');
  * Expects: username & passwords from http POST request body
  * Returns: JWT (String)
 */
-router.post('/register', async (req, res, next) => {
+const register = async (req, res, next) => {
 
   if (!req.body.username || !req.body.password1 || !req.body.password2) {
     return res.status(400).json({ message: 'Missing required fields' });
@@ -51,7 +49,7 @@ router.post('/register', async (req, res, next) => {
     .then(token => res.status(200).json(token))
     .catch(err  => next(err));
   
-});
+};
 
 
 /**
@@ -61,7 +59,7 @@ router.post('/register', async (req, res, next) => {
  * Expects: username and password from http POST request body
  * Returns: JWT (String)
 */
-router.post('/login', async (req, res, next) => {
+const login = async (req, res, next) => {
 
   if (!req.body.username || !req.body.password) {
     return res.status(500).json({ message: 'Missing required fields' });
@@ -84,9 +82,9 @@ router.post('/login', async (req, res, next) => {
     .then(token => res.status(200).json(token))
     .catch(err  => next(err));
 
-});
+};
 
 
 /* ================================ EXPORTS ================================ */
 
-module.exports = router;
+module.exports = { register, login };
