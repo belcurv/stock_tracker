@@ -151,10 +151,10 @@ describe('Authentication controller', () => {
         .then(() => {
 
           // then attempt to login that user
-          chai.request(server)
+          return chai.request(server)
             .post('/auth/login')
             .send(login_details)
-            .end((err, res) => {
+            .then((res) => {
               jwt.verify(res.body, secret, (err, decoded) => {
                 if (err) { throw new Error(err.message); }
 
@@ -179,10 +179,10 @@ describe('Authentication controller', () => {
         .then(() => {
 
           // then attempt to login that user
-          chai.request(server)
+          return chai.request(server)
             .post('/auth/login')
             .send({ password: 'testpassword'})
-            .end((err, res) => {
+            .then((res) => {
               expect(res).to.have.status(500);
               expect(res.body.message).to.eql('Missing required fields');
             });
@@ -201,10 +201,10 @@ describe('Authentication controller', () => {
         .then(() => {
 
           // then attempt to login that user
-          chai.request(server)
+          return chai.request(server)
             .post('/auth/login')
             .send({ username: 'dummy'})
-            .end((err, res) => {
+            .then((res) => {
               expect(res).to.have.status(500);
               expect(res.body.message).to.eql('Missing required fields');
             });
@@ -223,10 +223,10 @@ describe('Authentication controller', () => {
         .then(() => {
 
           // then attempt to login that user
-          chai.request(server)
+          return chai.request(server)
             .post('/auth/login')
             .send({ username: 'faker', password: 'doesntmatter' })
-            .end((err, res) => {
+            .then((res) => {
               expect(res).to.have.status(404);
               expect(res.body.message).to.eql('No user with that username');
             });
@@ -245,10 +245,10 @@ describe('Authentication controller', () => {
         .then(() => {
 
           // then attempt to login that user
-          chai.request(server)
+          return chai.request(server)
             .post('/auth/login')
             .send({ username: 'dummy', password: 'wrong'})
-            .end((err, res) => {
+            .then((res) => {
               expect(res).to.have.status(500);
               expect(res.body.message).to.eql('Invalid login credentials');
             });
