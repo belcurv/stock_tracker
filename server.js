@@ -53,3 +53,7 @@ db.connect((err) => {
   }
 
 });
+
+/* ======================== EXPORT APP FOR TESTING ========================= */
+
+module.exports = app;
