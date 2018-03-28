@@ -23,9 +23,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // routes
-app.use('/auth',  require('./controllers/auth'));
+app.use('/auth',  require('./routes/auth_routes'));
 app.use('/users', require('./controllers/users'));
-app.use('/api',   require('./controllers/portfolios'));
+app.use('/api',   require('./routes/api_routes'));
 
 // generic error handler
 app.use(function (err, req, res, next) {
