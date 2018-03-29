@@ -37,11 +37,11 @@ const register = async (req, res, next) => {
   if (user) {
     return res.status(500).json({ message: 'Username already taken' });
   }
-
+  
   const salt = await bcrypt.genSalt(10);
   newUser.pwHash = await bcrypt.hash(password, salt);
 
-  Users.createUser(newUser)
+  return Users.createUser(newUser)
     .then(result => generateJwt({
       username : result.username,
       _id      : result._id
@@ -78,7 +78,7 @@ const login = async (req, res, next) => {
     return res.status(500).json({ message: 'Invalid login credentials' });
   }
 
-  generateJwt({_id: user._id, username: user.username})
+  return generateJwt({_id: user._id, username: user.username})
     .then(token => res.status(200).json(token))
     .catch(err  => next(err));
 
