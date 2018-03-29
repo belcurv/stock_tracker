@@ -13,19 +13,15 @@ const port       = process.env.PORT || 3000;
 
 /* ================================ CONFIG ================================= */
 
-// enable logger except when testing
-if (process.env.NODE_ENV !== 'testing') {
-  app.use(morgan('dev'));
-}
+app.use(morgan('dev'));
 
 // enable http request body parsing
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // routes
-app.use('/auth',  require('./routes/auth_routes'));
-app.use('/users', require('./controllers/users'));
-app.use('/api',   require('./routes/api_routes'));
+app.use('/auth', require('./routes/auth_routes'));
+app.use('/api',  require('./routes/api_routes'));
 
 // generic error handler
 app.use(function (err, req, res, next) {
@@ -50,14 +46,6 @@ db.connect((err) => {
     process.exit(1);
   }
   
-  // this check is required for testing, else 'EADDRINUSE:::3000' errors!
-  if (!module.parent) {
-    // start server
-    app.listen(port, () => console.log(`Listening on port ${port}`));
-  }
+  app.listen(port, () => console.log(`Listening on port ${port}`));
 
 });
-
-/* ================================ EXPORTS ================================ */
-
-module.exports = app;
