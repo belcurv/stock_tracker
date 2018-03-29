@@ -1,263 +1,194 @@
-/* global describe it beforeEach */
+/* global describe it before after */
 
 'use strict';
 
 /* ================================= SETUP ================================= */
 
-process.env.NODE_ENV = 'testing';
+require('dotenv').config();
 
-const chai     = require('chai');
-const chaiHttp = require('chai-http');
-const server   = require('../../server');
-const db       = require('../../db/index');
-const jwt      = require('jsonwebtoken');
+const mockery = require('mockery');
+const chai    = require('chai');
+const expect  = chai.expect;
 
-const expect   = chai.expect;
-const secret   = process.env.JWT_SECRET;
+let password;
 
-chai.use(chaiHttp);
-
-const register_details = {
-  username  : 'dummy',
-  password1 : 'testpassword1',
-  password2 : 'testpassword1'
-};
-
-const login_details = {
-  username  : 'dummy',
-  password  : 'testpassword1'
+const makeMockUser = (username, pwHash) => {
+  if (!password) { password = pwHash; }
+  return Promise.resolve({
+    _id       : '101010101010101010101010',
+    password  : password,
+    username  : username,
+    createdAt : Date.now(),
+    updatedAt : Date.now()
+  });
 };
 
 
 /* ================================= TESTS ================================= */
 
-describe('Authentication controller', () => {
+describe('Authentication controller', function() {
+
+  let req = {};
+  let res;
+
+
+  before(function() {
+
+    res = {
+      resData : {
+        status : 0,
+        json   : ''
+      },
+      status: function(status) {
+        res.resData.status = status;
+        return this;
+      },
+      json: function(json) {
+        res.resData.json = json;
+        return this;
+      }
+    };
+
+    mockery.enable({
+      warnOnReplace: false,
+      warnOnUnregistered: false
+    });
+
+    mockery.registerMock('../models/users', {
+      usernameExists: (username) => username === 'biff' ? true : false,
+      createUser: ({username, pwHash}) => makeMockUser(username, pwHash),
+      getUser: (username) => username === 'biff' ? makeMockUser(username) : null
+    });
+
+    this.controller = require('../../controllers/auth');
+
+  });
+
+
+  after(function() {
+    mockery.deregisterAll();
+    mockery.disable();
+  });
+
+
+  it('.register() should return valid JWT on success', async function() {
+    req.body = {
+      username  : 'biff2',
+      password1 : 'testpassword',
+      password2 : 'testpassword'
+    };
+    const { resData } = await this.controller.register(req, res);
+
+    expect(resData.status).to.eql(200);
+    expect(resData.json.split('.').length).to.eql(3);
+  });
+
+
+  it('.register() should return error if username taken', async function() {
+    req.body = {
+      username  : 'biff',
+      password1 : 'testpassword',
+      password2 : 'testpassword'
+    };
+    const { resData } = await this.controller.register(req, res);
+
+    expect(resData.status).to.eql(500);
+    expect(resData.json.message).to.eql('Username already taken');
+  });
+
+
+  it('.register() should return error if username omitted', async function() {
+    req.body = {
+      password1 : 'testpassword',
+      password2 : 'testpassword'
+    };
+    const { resData } = await this.controller.register(req, res);
+
+    expect(resData.status).to.eql(400);
+    expect(resData.json.message).to.eql('Missing required fields');
+  });
+
+
+  it('.register() should return error if password omitted', async function() {
+    req.body = {
+      username  : 'biff2',
+      password2 : 'testpassword'
+    };
+    const { resData } = await this.controller.register(req, res);
+
+    expect(resData.status).to.eql(400);
+    expect(resData.json.message).to.eql('Missing required fields');
+  });
+
+
+  it('.register() should return error if passwords !match', async function() {
+    req.body = {
+      username  : 'biff2',
+      password1 : 'testpassword',
+      password2 : 'doesntmatch'
+    };
+    const { resData } = await this.controller.register(req, res);
+
+    expect(resData.status).to.eql(400);
+    expect(resData.json.message).to.eql('Passwords must match');
+  });
+
+
+  it('.login() should return valid JWT on success', async function() {
+    req.body = {
+      username : 'biff',
+      password : 'testpassword'
+    };
+    const { resData } = await this.controller.login(req, res);
+
+    expect(resData.status).to.eql(200);
+    expect(resData.json.split('.').length).to.eql(3);
+  });
+
+
+  it('.login() should return error if username omitted', async function() {
+    req.body = {
+      password : 'testpassword'
+    };
+    const { resData } = await this.controller.login(req, res);
+
+    expect(resData.status).to.eql(500);
+    expect(resData.json.message).to.eql('Missing required fields');
+  });
   
-  beforeEach((done) => {
-    const collection = db.get().collection('users');
-    collection.deleteMany({}, () => {
-      done();
-    });
+
+  it('.login() should return error if password omitted', async function() {
+    req.body = {
+      username : 'biff'
+    };
+    const { resData } = await this.controller.login(req, res);
+
+    expect(resData.status).to.eql(500);
+    expect(resData.json.message).to.eql('Missing required fields');
   });
 
 
-  // Test: Register a new account, then verify received JWT
-  describe('POST >> /auth/register', () => {
+  it('.login() should return error if user not found', async function() {
+    req.body = {
+      username : 'biffbraff',
+      password : 'testpassword'
+    };
+    const { resData } = await this.controller.login(req, res);
 
-    it('should return valid JWT on registration success', () => {
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then((res) => {
-          jwt.verify(res.body, secret, (err, decoded) => {
-            if (err) { throw new Error(err.message); }
-
-            expect(res).to.have.status(200);
-            expect(decoded.user).to.have.all.keys(['_id', 'username' ]);
-            expect(decoded.user).to.deep.include({ username : 'dummy' });
-            
-          });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return an error if username already in use', () => {
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then(() => {
-
-          // register again - should fail
-          chai.request(server)
-            .post('/auth/register')
-            .send(register_details)
-            .then((res) => {
-              expect(res).to.have.status(500);
-              expect(res.body.message).to.eql('Username already taken');
-            });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return an error message if username omitted', () => {
-      return chai.request(server)
-        .post('/auth/register')
-        .send({
-          password1 : 'testpassword',
-          password2 : 'testpassword'
-        })
-        .then((res) => {
-          expect(res).to.have.status(400);
-          expect(res.body.message).to.eql('Missing required fields');
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return an error message if password omitted', () => {
-      return chai.request(server)
-        .post('/auth/register')
-        .send({
-          username  : 'dummy',
-          password1 : 'testpassword'
-        })
-        .then((res) => {
-          expect(res).to.have.status(400);
-          expect(res.body.message).to.eql('Missing required fields');
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return an error message if passwords do not match', () => {
-      return chai.request(server)
-        .post('/auth/register')
-        .send({
-          username  : 'dummy',
-          password1 : 'testpassword',
-          password2 : 'typo'
-        })
-        .then((res) => {
-          expect(res).to.have.status(400);
-          expect(res.body.message).to.eql('Passwords must match');
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
+    expect(resData.status).to.eql(404);
+    expect(resData.json.message).to.eql('No user with that username');
   });
 
 
-  // Test: Register and login to an account, then verify received JWT
-  describe('POST >> /auth/login', () => {
+  it('.login() should return error from invalid password', async function() {
+    req.body = {
+      username : 'biff',
+      password : 'invalidpass'
+    };
+    const { resData } = await this.controller.login(req, res);
 
-    it('should return valid JWT on login success', () => {
-
-      // first register a new user
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then(() => {
-
-          // then attempt to login that user
-          return chai.request(server)
-            .post('/auth/login')
-            .send(login_details)
-            .then((res) => {
-              jwt.verify(res.body, secret, (err, decoded) => {
-                if (err) { throw new Error(err.message); }
-
-                expect(res).to.have.status(200);
-                expect(decoded.user).to.have.all.keys(['_id', 'username' ]);
-                expect(decoded.user).to.deep.include({ username : 'dummy' });
-
-              });
-            });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return error message if username omitted', () => {
-
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then(() => {
-
-          // then attempt to login that user
-          return chai.request(server)
-            .post('/auth/login')
-            .send({ password: 'testpassword'})
-            .then((res) => {
-              expect(res).to.have.status(500);
-              expect(res.body.message).to.eql('Missing required fields');
-            });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return error message if password omitted', () => {
-
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then(() => {
-
-          // then attempt to login that user
-          return chai.request(server)
-            .post('/auth/login')
-            .send({ username: 'dummy'})
-            .then((res) => {
-              expect(res).to.have.status(500);
-              expect(res.body.message).to.eql('Missing required fields');
-            });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return error message if user not found', () => {
-
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then(() => {
-
-          // then attempt to login that user
-          return chai.request(server)
-            .post('/auth/login')
-            .send({ username: 'faker', password: 'doesntmatter' })
-            .then((res) => {
-              expect(res).to.have.status(404);
-              expect(res.body.message).to.eql('No user with that username');
-            });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
-
-    it('should return error message on invalid password', () => {
-
-      return chai.request(server)
-        .post('/auth/register')
-        .send(register_details)
-        .then(() => {
-
-          // then attempt to login that user
-          return chai.request(server)
-            .post('/auth/login')
-            .send({ username: 'dummy', password: 'wrong'})
-            .then((res) => {
-              expect(res).to.have.status(500);
-              expect(res.body.message).to.eql('Invalid login credentials');
-            });
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    });
-
+    expect(resData.status).to.eql(500);
+    expect(resData.json.message).to.eql('Invalid login credentials');
   });
 
 });
