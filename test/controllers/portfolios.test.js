@@ -76,6 +76,19 @@ const makeFakePflo = ({owner, name, notes}) => {
   });
 };
 
+const updateFakePflo = ({ owner, pfloId }, updates) => {
+  return getFakePflos(owner, pfloId)
+    .then(pflo => Object.assign(pflo, updates, { updatedAt: Date.now() }));
+};
+
+const deleteFakePortfolio = () => {
+  return Promise.resolve({
+    result: { ok: 1, n: 1 },
+    connection: {},
+    deletedCount: 1
+  });
+};
+
 /* ================================= TESTS ================================= */
 
 describe('Portfolios controller', function() {
@@ -106,18 +119,37 @@ describe('Portfolios controller', function() {
     });
 
     mockery.registerMock('../models/portfolios', {
-      getAll: (owner) => getFakePflos(owner),
-      getOne: (owner, pfloId) => getFakePflos(owner, pfloId),
-      create: (newPortfolio) => makeFakePflo(newPortfolio),
+      getAll: (owner)           => getFakePflos(owner),
+      getOne: (owner, pfloId)   => getFakePflos(owner, pfloId),
+      create: (newPortfolio)    => makeFakePflo(newPortfolio),
+      update: (filter, updates) => updateFakePflo(filter, updates),
 
-      update: ({ owner, pfloId }, { name, notes }) => {
-        return true;
-      },
-      deletePortfolio: (owner, pfloId) => {
-        return true;
-      },
+      deletePortfolio: () => deleteFakePortfolio(),
+
       hasHolding: (owner, pfloId, ticker) => {
-        return true;
+        /*
+        {
+          _id       : pfloID1,
+          owner     : pfloOwner1,
+          name      : 'Portfolio 1',
+          notes     : 'Dummy portfolio 1 notes',
+          holdings: [{
+            ticker    : 'MSFT',
+            _id       : pflo1hlngId,
+            createdAt : Date.now(),
+            updatedAt : Date.now(),
+            qty       : 666
+          }],
+          createdAt : Date.now(),
+          updatedAt : Date.now()
+        }
+        */
+        return getFakePflos(owner, pfloId)
+          .then(pflo => {
+            return pflo.holdings.reduce((acc, hldg) => {
+              acc = hldg.ticker === ticker;
+            }, false);
+          });
       },
       addHolding: ({ owner, pfloId }, { ticker, qty }) => {
         return true;
@@ -156,7 +188,7 @@ describe('Portfolios controller', function() {
   });
 
 
-  it('.getOne should return single user portfolio', async function() {
+  it('.getOne() should return single user portfolio', async function() {
     req.user   = { _id : pfloOwner1 };
     req.params = {  id : pfloID1 };
     const { resData } = await this.controller.getOne(req, res);
@@ -166,7 +198,7 @@ describe('Portfolios controller', function() {
   });
   
   
-  it('.create() should create a new portfolio', async function() {
+  it('.create() should return a newly created portfolio', async function() {
     req.user = { _id : pfloOwner1 };
     req.body = { name: 'test portfolio', notes: 'test notes' };
     const { resData } = await this.controller.create(req, res);
@@ -177,5 +209,32 @@ describe('Portfolios controller', function() {
     expect(resData.json.notes).to.eql('test notes');
   });
 
+
+  it('.update() should return an updated portfolio', async function() {
+    req.user   = { _id : pfloOwner1 };
+    req.params = {  id : pfloID1 };
+    req.body   = { name: 'updated name', notes: 'updated notes' };
+    const { resData } = await this.controller.update(req, res);
+
+    expect(resData.status).to.eql(200);
+    expect(resData.json._id).to.eql(pfloID1);
+    expect(resData.json.name).to.eql('updated name');
+    expect(resData.json.notes).to.eql('updated notes');
+  });
+
+
+  it('.deletePortfolio() should return a success message', async function() {
+    req.user   = { _id : pfloOwner1 };
+    req.params = {  id : pfloID1 };
+    const { resData } = await this.controller.deletePortfolio(req, res);
+
+    expect(resData.status).to.eql(200);
+    expect(resData.json.result).to.deep.eql({ ok: 1, n: 1 });
+  });
+
+
+  it('.addHolding() should return portfolio w/new holding', async function() {
+    
+  });
 
 });
