@@ -57,7 +57,7 @@ describe('Authentication controller', function() {
     });
 
     mockery.registerMock('../models/users', {
-      usernameExists: (username) => username === 'biff' ? true : false,
+      usernameExists: (username) => username === 'biff',
       createUser: ({username, pwHash}) => makeMockUser(username, pwHash),
       getUser: (username) => username === 'biff' ? makeMockUser(username) : null
     });
