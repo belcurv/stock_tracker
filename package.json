@@ -7,6 +7,7 @@
     "start": "nodemon server.js",
     "test": "mocha --timeout 3000 --exit --recursive",
     "test:utils": "mocha test/utils --watch --reporter min",
+    "test:controllers": "mocha test/controllers --watch",
     "test:models": "mocha test/models --timeout 3000 --watch --reporter min"
   },
   "repository": {
