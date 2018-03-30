@@ -22,7 +22,7 @@ const badBodyMsg  = 'Malformed request body parameter';
  * Returns: JSON array of portfolio objects
 */
 const getAll = (req, res, next) => {
-  Portfolios.getAll(req.user._id)
+  return Portfolios.getAll(req.user._id)
     .then(portfolios => res.status(200).json(portfolios))
     .catch(err => next(err));
   
@@ -36,7 +36,7 @@ const getAll = (req, res, next) => {
  * Expects: 
  *    1) user _id from JWT
  *    2) portfolio _id from req params
- * Returns: JSON portfolio objects
+ * Returns: JSON portfolio object
 */
 const getOne = (req, res, next) => {
 
@@ -44,7 +44,7 @@ const getOne = (req, res, next) => {
     return res.status(400).json({ message: badParamMsg});
   }
 
-  Portfolios.getOne(req.user._id, req.params.id)
+  return Portfolios.getOne(req.user._id, req.params.id)
     .then(portfolio => res.status(200).json(portfolio))
     .catch(err => next(err));
 
@@ -55,8 +55,9 @@ const getOne = (req, res, next) => {
  * Create a new portfolio
  * Example: POST >> /api/portfolios
  * Secured: yes -- valid JWT required
+ * Expects
  *    1) user _id from JWT
- *    2) portfolio name from req body
+ *    2) portfolio name and notes from req body
  * Returns: JSON portfolio object
 */
 const create = (req, res, next) => {
@@ -73,7 +74,7 @@ const create = (req, res, next) => {
     notes
   };
   
-  Portfolios.create(newPortfolio)
+  return Portfolios.create(newPortfolio)
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
   
@@ -106,7 +107,7 @@ const update = (req, res, next) => {
     notes : req.body.notes
   };
 
-  Portfolios.update(filter, updates)
+  return Portfolios.update(filter, updates)
     .then(result => res.status(200).json(result))
     .catch(err   => next(err));
 
@@ -128,7 +129,7 @@ const deletePortfolio = (req, res, next) => {
     return res.status(400).json({ message: badParamMsg });
   }
 
-  Portfolios.deletePortfolio(req.user._id, req.params._id)
+  return Portfolios.deletePortfolio(req.user._id, req.params._id)
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 
@@ -179,7 +180,7 @@ const addHolding = async (req, res, next) => {
       .json({message: `Holding ${ticker} already exists in portfolio.`});
   }
 
-  Portfolios.addHolding(filter, updates)
+  return Portfolios.addHolding(filter, updates)
     .then(result => res.status(200).json(result))
     .catch(err   => next(err));
 
@@ -219,7 +220,7 @@ const updateHolding = (req, res, next) => {
 
   const qty = +req.body.qty;  // coerce to number type
 
-  Portfolios.updateHolding(filter, qty)
+  return Portfolios.updateHolding(filter, qty)
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 
@@ -248,7 +249,7 @@ const deleteHolding = (req, res, next) => {
     hldgId : req.params.hldgId
   };
 
-  Portfolios.deleteHolding(target)
+  return Portfolios.deleteHolding(target)
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 
