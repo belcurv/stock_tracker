@@ -1,4 +1,4 @@
-/* global describe it before after */
+/* global describe it before beforeEach after */
 
 'use strict';
 
@@ -7,10 +7,12 @@
 require('dotenv').config();
 
 const mockery = require('mockery');
-const chai    = require('chai');
-const expect  = chai.expect;
+const expect  = require('chai').expect;
 
 let password;
+
+
+/* ============================ UTILITY METHODS ============================ */
 
 const makeMockUser = (username, pwHash) => {
   if (!password) { password = pwHash; }
@@ -28,7 +30,7 @@ const makeMockUser = (username, pwHash) => {
 
 describe('Authentication controller', function() {
 
-  let req = {};
+  let req;
   let res;
 
 
@@ -39,11 +41,11 @@ describe('Authentication controller', function() {
         status : 0,
         json   : ''
       },
-      status: function(status) {
+      status(status) {
         res.resData.status = status;
         return this;
       },
-      json: function(json) {
+      json(json) {
         res.resData.json = json;
         return this;
       }
@@ -62,6 +64,11 @@ describe('Authentication controller', function() {
 
     this.controller = require('../../controllers/auth');
 
+  });
+
+
+  beforeEach(function() {
+    req = {};
   });
 
 
