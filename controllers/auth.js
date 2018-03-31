@@ -14,7 +14,7 @@ const Users       = require('../models/users');
  * Example: POST >> /auth/register
  * Secured: No
  * Expects: username & passwords from http POST request body
- * Returns: JWT (String)
+ * Returns: object w/success {Boolean} and token {String}
 */
 const register = async (req, res, next) => {
 
@@ -46,7 +46,10 @@ const register = async (req, res, next) => {
       username : result.username,
       _id      : result._id
     }))
-    .then(token => res.status(200).json(token))
+    .then(token => res.status(200).json({
+      success : true,
+      token   : token
+    }))
     .catch(err  => next(err));
   
 };
@@ -57,7 +60,7 @@ const register = async (req, res, next) => {
  * Example: POST >> /auth/login
  * Secured: No
  * Expects: username and password from http POST request body
- * Returns: JWT (String)
+ * Returns: object w/success {Boolean} and token {String}
 */
 const login = async (req, res, next) => {
 
@@ -79,7 +82,10 @@ const login = async (req, res, next) => {
   }
 
   return generateJwt({_id: user._id, username: user.username})
-    .then(token => res.status(200).json(token))
+    .then(token => res.status(200).json({
+      success : true,
+      token   : token
+    }))
     .catch(err  => next(err));
 
 };
