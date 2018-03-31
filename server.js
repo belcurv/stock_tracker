@@ -3,19 +3,20 @@
 /* ================================= SETUP ================================= */
 
 require('dotenv').config();
-const express    = require('express');
-const morgan     = require('morgan');
-const bodyParser = require('body-parser');
-const app        = express();
-const db         = require('./db');
-const port       = process.env.PORT || 3000;
+const express     = require('express');
+const morgan      = require('morgan');
+const bodyParser  = require('body-parser');
+const cors        = require('cors');
+const corsOptions = require('./config/cors_options');
+const app         = express();
+const db          = require('./db');
+const port        = process.env.PORT || 3000;
 
 
 /* ================================ CONFIG ================================= */
 
 app.use(morgan('dev'));
-
-// enable http request body parsing
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
