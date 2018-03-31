@@ -32,7 +32,7 @@ describe('Utility: validatePwHashes', () => {
     assert.isTrue(validatePwHashes(valids[1]));
   });
 
-  it('should throw exception when "hash" omitted', () => {
+  it('should throw exception when "pwHash" omitted', () => {
     assert.throws(validatePwHashes, 'Missing required "pwHash" parameter');
   });
 

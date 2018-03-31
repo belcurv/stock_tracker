@@ -4,9 +4,7 @@
 
 const bcrypt      = require('bcryptjs');
 const generateJwt = require('../utils/generate-jwt');
-
-const router = require('express').Router();
-const Users  = require('../models/users');
+const Users       = require('../models/users');
 
 
 /* ========================== ROUTE CONTROLLERS ============================ */
@@ -18,36 +16,32 @@ const Users  = require('../models/users');
  * Expects: username & passwords from http POST request body
  * Returns: JWT (String)
 */
-router.post('/register', async (req, res, next) => {
+const register = async (req, res, next) => {
 
   if (!req.body.username || !req.body.password1 || !req.body.password2) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
-  // fail if passwords do not match
   if (req.body.password1 !== req.body.password2) {
     return res.status(400).json({ message: 'Passwords must match' });
   }
 
-  // trim inputs
   const newUser = {
-    username: req.body.username.trim()
+    username: req.body.username
   };
 
-  const password = req.body.password1.trim();
+  const password = req.body.password1;
 
   // check for existing user with same username
   const user = await Users.usernameExists(newUser.username);
   if (user) {
-    return res.status(500).json({ message: 'username already taken' });
+    return res.status(500).json({ message: 'Username already taken' });
   }
-
-  // generate salt
+  
   const salt = await bcrypt.genSalt(10);
-  // set newUser password to salted hash
-  newUser.password = await bcrypt.hash(password, salt);
+  newUser.pwHash = await bcrypt.hash(password, salt);
 
-  Users.createUser(newUser)
+  return Users.createUser(newUser)
     .then(result => generateJwt({
       username : result.username,
       _id      : result._id
@@ -55,7 +49,7 @@ router.post('/register', async (req, res, next) => {
     .then(token => res.status(200).json(token))
     .catch(err  => next(err));
   
-});
+};
 
 
 /**
@@ -65,36 +59,32 @@ router.post('/register', async (req, res, next) => {
  * Expects: username and password from http POST request body
  * Returns: JWT (String)
 */
-router.post('/login', async (req, res, next) => {
+const login = async (req, res, next) => {
 
   if (!req.body.username || !req.body.password) {
     return res.status(500).json({ message: 'Missing required fields' });
   }
 
-  // trim inputs
-  const username = req.body.username.trim();
-  const password = req.body.password.trim();
+  const username = req.body.username;
+  const password = req.body.password;
 
-  // check for a user
   const user = await Users.getUser(username);
   if (!user) {
     return res.status(404).json({ message: 'No user with that username' });
   }
 
-  // validate password
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
-    return res.status(500).json({ message: 'Invalid login credentials.' });
+    return res.status(500).json({ message: 'Invalid login credentials' });
   }
 
-  // generate and return a JWT
-  generateJwt(user)
+  return generateJwt({_id: user._id, username: user.username})
     .then(token => res.status(200).json(token))
     .catch(err  => next(err));
 
-});
+};
 
 
 /* ================================ EXPORTS ================================ */
 
-module.exports = router;
+module.exports = { register, login };
