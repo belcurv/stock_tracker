@@ -186,7 +186,7 @@ const hasHolding = (owner, pfloId, ticker) => {
   return collection
     .find(target)
     .count()
-    .then(count => count > 0 ? true : false);
+    .then(count => count > 0);
 
 };
 
