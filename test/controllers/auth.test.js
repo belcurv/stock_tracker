@@ -87,7 +87,7 @@ describe('Authentication controller', function() {
     const { resData } = await this.controller.register(req, res);
 
     expect(resData.status).to.eql(200);
-    expect(resData.json.split('.').length).to.eql(3);
+    expect(resData.json.token.split('.').length).to.eql(3);
   });
 
 
@@ -149,7 +149,7 @@ describe('Authentication controller', function() {
     const { resData } = await this.controller.login(req, res);
 
     expect(resData.status).to.eql(200);
-    expect(resData.json.split('.').length).to.eql(3);
+    expect(resData.json.token.split('.').length).to.eql(3);
   });
 
 
