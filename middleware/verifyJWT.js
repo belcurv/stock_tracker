@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
   if (!headerRex.test(authHeader)) {
     return next(new Error('Expected Authorization header: "Bearer <token>"'));
   }
-  
+
   const token = authHeader.split(' ')[1];
 
   jwt.verify(token, secret, (err, decoded) => {

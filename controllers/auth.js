@@ -19,15 +19,15 @@ const Users       = require('../models/users');
 const register = async (req, res, next) => {
 
   if (!req.body.username || !req.body.password1 || !req.body.password2) {
-    return res.status(400).json({ message: 'Missing required fields' });
+    return res.status(400).json({ message : 'Missing required fields' });
   }
 
   if (req.body.password1 !== req.body.password2) {
-    return res.status(400).json({ message: 'Passwords must match' });
+    return res.status(400).json({ message : 'Passwords must match' });
   }
 
   const newUser = {
-    username: req.body.username
+    username : req.body.username
   };
 
   const password = req.body.password1;
@@ -35,9 +35,9 @@ const register = async (req, res, next) => {
   // check for existing user with same username
   const user = await Users.usernameExists(newUser.username);
   if (user) {
-    return res.status(500).json({ message: 'Username already taken' });
+    return res.status(500).json({ message : 'Username already taken' });
   }
-  
+
   const salt = await bcrypt.genSalt(10);
   newUser.pwHash = await bcrypt.hash(password, salt);
 
@@ -51,7 +51,7 @@ const register = async (req, res, next) => {
       token   : token
     }))
     .catch(err  => next(err));
-  
+
 };
 
 
@@ -65,7 +65,7 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
 
   if (!req.body.username || !req.body.password) {
-    return res.status(500).json({ message: 'Missing required fields' });
+    return res.status(500).json({ message : 'Missing required fields' });
   }
 
   const username = req.body.username;
@@ -73,15 +73,15 @@ const login = async (req, res, next) => {
 
   const user = await Users.getUser(username);
   if (!user) {
-    return res.status(404).json({ message: 'No user with that username' });
+    return res.status(404).json({ message : 'No user with that username' });
   }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
-    return res.status(500).json({ message: 'Invalid login credentials' });
+    return res.status(500).json({ message : 'Invalid login credentials' });
   }
 
-  return generateJwt({_id: user._id, username: user.username})
+  return generateJwt({_id : user._id, username : user.username})
     .then(token => res.status(200).json({
       success : true,
       token   : token

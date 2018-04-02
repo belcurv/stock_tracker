@@ -2,17 +2,17 @@ require('dotenv').config();
 
 module.exports = {
 
-  development: {
+  development : {
     url    : `mongodb://${process.env.DB_URL}:${process.env.DB_PORT}`,
     dbName : process.env.DEV_DB_NAME
   },
 
-  testing: {
+  testing : {
     url    : `mongodb://${process.env.DB_URL}:${process.env.DB_PORT}`,
     dbName : process.env.TESTING_DB_NAME
   },
 
-  production: {
+  production : {
     url    : null, // doesn't exist yet!
     dbName : null
   }

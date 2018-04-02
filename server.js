@@ -18,7 +18,7 @@ const port        = process.env.PORT || 3000;
 app.use(morgan('dev'));
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended : true }));
 
 // routes
 app.use('/auth', require('./routes/auth_routes'));
@@ -46,7 +46,7 @@ db.connect((err) => {
     console.log('Unable to connect to MongoDB');
     process.exit(1);
   }
-  
+
   app.listen(port, () => console.log(`Listening on port ${port}`));
 
 });

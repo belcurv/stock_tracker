@@ -8,7 +8,7 @@
 */
 
 module.exports = (username) => {
-  const rex = /^[\w\s.]{3,32}$/;  
+  const rex = /^[\w\s.]{3,32}$/;
 
   if (typeof username === 'undefined') {
     throw new Error('Missing required "username" parameter');
@@ -20,6 +20,6 @@ module.exports = (username) => {
   if (notString || !username.trim().length || !isValid) {
     throw new Error(`Validation Error: Invalid "username": ${username}`);
   }
-  
+
   return true;
 };

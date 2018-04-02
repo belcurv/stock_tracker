@@ -17,7 +17,7 @@ const badBodyMsg  = 'Malformed request body parameter';
  * Get all user's portfolios
  * Example: GET >> /api/portfolios
  * Secured: yes -- valid JWT required
- * Expects: 
+ * Expects:
  *    1) user _id from valid JWT
  * Returns: JSON array of portfolio objects
 */
@@ -25,7 +25,7 @@ const getAll = (req, res, next) => {
   return Portfolios.getAll(req.user._id)
     .then(portfolios => res.status(200).json(portfolios))
     .catch(err => next(err));
-  
+
 };
 
 
@@ -33,7 +33,7 @@ const getAll = (req, res, next) => {
  * Get a specific portfolio belonging to a user
  * Example: GET >> /api/portfolios/65a4sd654asd645asd
  * Secured: yes -- valid JWT required
- * Expects: 
+ * Expects:
  *    1) user _id from JWT
  *    2) portfolio _id from req params
  * Returns: JSON portfolio object
@@ -41,7 +41,7 @@ const getAll = (req, res, next) => {
 const getOne = (req, res, next) => {
 
   if (!isOid(req.params.id)) {
-    return res.status(400).json({ message: badParamMsg});
+    return res.status(400).json({ message : badParamMsg});
   }
 
   return Portfolios.getOne(req.user._id, req.params.id)
@@ -63,9 +63,9 @@ const getOne = (req, res, next) => {
 const create = (req, res, next) => {
 
   if (!req.body.name) {
-    return res.status(400).json({ message: 'Portfolio "name" is required.' });
+    return res.status(400).json({ message : 'Portfolio "name" is required.' });
   }
-  
+
   const notes = req.body.notes || '';
 
   const newPortfolio = {
@@ -73,11 +73,11 @@ const create = (req, res, next) => {
     name  : req.body.name,
     notes
   };
-  
+
   return Portfolios.create(newPortfolio)
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
-  
+
 };
 
 
@@ -94,14 +94,14 @@ const create = (req, res, next) => {
 const update = (req, res, next) => {
 
   if (!isOid(req.params.id)) {
-    return res.status(400).json({ message: badParamMsg });
+    return res.status(400).json({ message : badParamMsg });
   }
 
   const filter = {
     owner  : req.user._id,
     pfloId : req.params.id
   };
-  
+
   const updates = {
     name  : req.body.name,
     notes : req.body.notes
@@ -118,7 +118,7 @@ const update = (req, res, next) => {
  * Delete a user's portfolio
  * Example: DELETE >> /api/portfolios/564asd654asd56a4sd
  * Secured: yes -- valid JWT required
- * Expects: 
+ * Expects:
  *    1) user _id from JWT
  *    2) portfolio _id from req params
  * Returns: JSON success message
@@ -126,7 +126,7 @@ const update = (req, res, next) => {
 const deletePortfolio = (req, res, next) => {
 
   if (!isOid(req.params.id)) {
-    return res.status(400).json({ message: badParamMsg });
+    return res.status(400).json({ message : badParamMsg });
   }
 
   return Portfolios.deletePortfolio(req.user._id, req.params._id)
@@ -150,15 +150,15 @@ const addHolding = async (req, res, next) => {
 
   if (!req.body.ticker || !req.body.qty) {
     return res.status(400)
-      .json({ message: 'Missing required holding details.' });
+      .json({ message : 'Missing required holding details.' });
   }
 
   if (Number.isNaN(+req.body.qty)) {
-    return res.status(400).json({ message: 'Qty must be a number.' });
+    return res.status(400).json({ message : 'Qty must be a number.' });
   }
 
   if (!isOid(req.params.id)) {
-    return res.status(400).json({ message: badParamMsg });
+    return res.status(400).json({ message : badParamMsg });
   }
 
   const owner  = req.user._id;
@@ -167,7 +167,7 @@ const addHolding = async (req, res, next) => {
   const qty    = +req.body.qty;  // coerse to number type
 
   if (!isTicker(ticker)) {
-    return res.status(400).json({ message: badBodyMsg });
+    return res.status(400).json({ message : badBodyMsg });
   }
 
   const filter  = { owner, pfloId };
@@ -177,7 +177,7 @@ const addHolding = async (req, res, next) => {
   const holding = await Portfolios.hasHolding(owner, pfloId, ticker);
   if (holding) {
     return res.status(403)
-      .json({message: `Holding ${ticker} already exists in portfolio.`});
+      .json({message : `Holding ${ticker} already exists in portfolio.`});
   }
 
   return Portfolios.addHolding(filter, updates)
@@ -191,7 +191,7 @@ const addHolding = async (req, res, next) => {
  * Update a holding in a user's portfolio
  * Example: PUT >> /api/portfolios/564asd654asd54sd/holdings/65asd64sd564asd564
  * Secured: yes -- valid JWT required
- * Expects: 
+ * Expects:
  *    1) user _id from JWT
  *    2) portfolio _id from req params
  *    3) holding _id from req params
@@ -201,15 +201,15 @@ const addHolding = async (req, res, next) => {
 const updateHolding = (req, res, next) => {
 
   if (!isOid(req.params.pfloId || !isOid(req.params.hldgId))) {
-    return res.status(400).json({ message: badParamMsg });
+    return res.status(400).json({ message : badParamMsg });
   }
 
   if (!req.body.qty) {
-    return res.status(400).json({ message: 'Missing holding quantity.' });
+    return res.status(400).json({ message : 'Missing holding quantity.' });
   }
 
   if (Number.isNaN(+req.body.qty)) {
-    return res.status(400).json({ message: 'Qty must be a number.' });
+    return res.status(400).json({ message : 'Qty must be a number.' });
   }
 
   const filter = {
@@ -231,7 +231,7 @@ const updateHolding = (req, res, next) => {
  * Delete a holding from a user's portfolio
  * Example: DELETE >> /api/portfolios/564asd654asd4sd/holdings/65asd4sd564asd564
  * Secured: yes -- valid JWT required
- * Expects: 
+ * Expects:
  *    1) user _id from JWT
  *    2) portfolio _id from req params
  *    3) holding _id from req params
@@ -240,7 +240,7 @@ const updateHolding = (req, res, next) => {
 const deleteHolding = (req, res, next) => {
 
   if (!isOid(req.params.pfloId || !isOid(req.params.hldgId))) {
-    return res.status(400).json({ message: badParamMsg });
+    return res.status(400).json({ message : badParamMsg });
   }
 
   const target = {

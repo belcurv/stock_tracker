@@ -16,10 +16,24 @@ module.exports = {
       2
     ],
     "no-console": 0,
+    "no-trailing-spaces": [
+      "error"
+    ],
     "linebreak-style": [
       "error",
       "unix"
     ],
+    "key-spacing": ["error", {
+      "singleLine": {
+        "beforeColon": true,
+        "afterColon": true
+      },
+      "multiLine": {
+        "beforeColon": true,
+        "afterColon": true,
+        "align": "colon"
+      }
+    }],
     "quotes": [
       "error",
       "single"

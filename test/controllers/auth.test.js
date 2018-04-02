@@ -52,14 +52,14 @@ describe('Authentication controller', function() {
     };
 
     mockery.enable({
-      warnOnReplace: false,
-      warnOnUnregistered: false
+      warnOnReplace      : false,
+      warnOnUnregistered : false
     });
 
     mockery.registerMock('../models/users', {
-      usernameExists: (username) => username === 'biff',
-      createUser: ({username, pwHash}) => makeMockUser(username, pwHash),
-      getUser: (username) => username === 'biff' ? makeMockUser(username) : null
+      usernameExists : (uname) => uname === 'biff',
+      createUser     : ({uname, pwHash}) => makeMockUser(uname, pwHash),
+      getUser        : (uname) => uname === 'biff' ? makeMockUser(uname) : null
     });
 
     this.controller = require('../../controllers/auth');
@@ -162,7 +162,7 @@ describe('Authentication controller', function() {
     expect(resData.status).to.eql(500);
     expect(resData.json.message).to.eql('Missing required fields');
   });
-  
+
 
   it('.login() should return error if password omitted', async function() {
     req.body = {

@@ -19,7 +19,7 @@ const state = {
 */
 const connect = (done) => {
   if (state.db) { return done(); }
-  
+
   MongoClient.connect(config.url, (err, client) => {
     if (err) { return done(err); }
     state.db = client.db(config.dbName);
