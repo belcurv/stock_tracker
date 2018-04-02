@@ -55,11 +55,11 @@ const getOne = (owner, pfloId) => {
     _id : ObjectID(pfloId),
     owner
   };
-  
+
   return collection
     .findOne(target)
     .then(portfolio => portfolio);
-  
+
 };
 
 
@@ -115,20 +115,20 @@ const update = ({ owner, pfloId }, { name, notes }) => {
   }
 
   const collection = db.get().collection('portfolios');
-  
+
   const filter = {
     _id   : ObjectID(pfloId),
     owner : owner
   };
-  
-  const updates = { updatedAt: Date.now() };
+
+  const updates = { updatedAt : Date.now() };
   if (name)  { updates.name  = sanitize(name).toString().trim();  }
   if (notes) { updates.notes = sanitize(notes).toString().trim(); }
-  
-  const options = { returnOriginal: false };
+
+  const options = { returnOriginal : false };
 
   return collection
-    .findOneAndUpdate(filter, { '$set': updates }, options)
+    .findOneAndUpdate(filter, { '$set' : updates }, options)
     .then(result => result.value);
 
 };
@@ -182,7 +182,7 @@ const hasHolding = (owner, pfloId, ticker) => {
     owner             : owner,
     'holdings.ticker' : sanitize(ticker).toString().trim()
   };
-  
+
   return collection
     .find(target)
     .count()
@@ -214,26 +214,26 @@ const addHolding = ({ owner, pfloId }, { ticker, qty }) => {
     _id   : ObjectID(pfloId),
     owner : owner
   };
-  
+
   const updates = {
-    '$push': {
+    '$push' : {
       holdings : {
-        $each: [{
+        $each : [{
           _id       : ObjectID(),
           ticker    : sanitize(ticker),
           createdAt : now,
           updatedAt : now,
           qty
         }],
-        $sort: { ticker: 1 }
+        $sort : { ticker : 1 }
       }
     },
-    '$set': {
-      updatedAt: Date.now()
+    '$set' : {
+      updatedAt : Date.now()
     }
   };
-  
-  const options = { returnOriginal: false };
+
+  const options = { returnOriginal : false };
 
   return collection
     .findOneAndUpdate(filter, updates, options)
@@ -261,19 +261,19 @@ const updateHolding = ({ owner, pfloId, hldgId }, qty) => {
   const collection = db.get().collection('portfolios');
 
   const filter = {
-    _id: ObjectID(pfloId),
     owner,
-    'holdings._id': ObjectID(hldgId)
+    _id            : ObjectID(pfloId),
+    'holdings._id' : ObjectID(hldgId)
   };
 
   const updates = {
-    '$set': {
-      'holdings.$.qty': qty,
-      'holdings.$.updatedAt': Date.now()
+    '$set' : {
+      'holdings.$.qty'       : qty,
+      'holdings.$.updatedAt' : Date.now()
     }
   };
 
-  const options = { returnOriginal: false };
+  const options = { returnOriginal : false };
 
   return collection
     .findOneAndUpdate(filter, updates, options)
@@ -300,23 +300,23 @@ const deleteHolding = ({ owner, pfloId, hldgId }) => {
   const collection = db.get().collection('portfolios');
 
   const filter = {
-    _id: ObjectID(pfloId),
     owner,
-    'holdings._id': ObjectID(hldgId)
+    _id            : ObjectID(pfloId),
+    'holdings._id' : ObjectID(hldgId)
   };
 
   const updates = {
-    '$pull': {
-      holdings: { _id: ObjectID(hldgId) }
+    '$pull' : {
+      holdings : { _id : ObjectID(hldgId) }
     }
   };
 
-  const options = { returnOriginal: false };
+  const options = { returnOriginal : false };
 
   return collection
     .findOneAndUpdate(filter, updates, options)
     .then(result => result.value);
-  
+
 };
 
 

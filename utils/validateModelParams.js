@@ -20,7 +20,7 @@ const defaultSchema = {
 
 
 module.exports = class ModelParamValidator {
-  
+
   /** Instantiates validators with passed or default schema
    *  @param   {Object}   schema   Optional custom schema object
   */

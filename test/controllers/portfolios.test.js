@@ -18,22 +18,22 @@ const pflo2hlngId = '9b9b9b9b9b9b9b9b9b9b9b9b';
 
 const dummyPflos = [
   {
-    _id       : pfloID1,
-    owner     : pfloOwner1,
-    name      : 'Portfolio 1',
-    notes     : 'Dummy portfolio 1 notes',
-    holdings: [{
+    _id      : pfloID1,
+    owner    : pfloOwner1,
+    name     : 'Portfolio 1',
+    notes    : 'Dummy portfolio 1 notes',
+    holdings : [{
       ticker : 'MSFT',
       _id    : pflo1hlngId,
       qty    : 666
     }]
   },
   {
-    _id       : pfloID2,
-    owner     : pfloOwner2,
-    name      : 'Portfolio 2',
-    notes     : 'Dummy portfolio 2 notes',
-    holdings: [{
+    _id      : pfloID2,
+    owner    : pfloOwner2,
+    name     : 'Portfolio 2',
+    notes    : 'Dummy portfolio 2 notes',
+    holdings : [{
       ticker : 'AAPL',
       _id    : pflo2hlngId,
       qty    : 1
@@ -85,14 +85,14 @@ const updateFakePflo = ({ owner, pfloId, hldgId }, updates) => {
         }
         return pflo;
       } else {
-        return Object.assign(pflo, updates, { updatedAt: Date.now() });
+        return Object.assign(pflo, updates, { updatedAt : Date.now() });
       }
     });
 };
 
 const deleteFakePortfolio = () => {
   return Promise.resolve({
-    result       : { ok: 1, n: 1 },
+    result       : { ok : 1, n : 1 },
     connection   : {},
     deletedCount : 1
   });
@@ -129,15 +129,15 @@ describe('Portfolios controller', function() {
     });
 
     mockery.registerMock('../models/portfolios', {
-      getAll: (owner)            => getFakePflos(owner),
-      getOne: (owner, pfloId)    => getFakePflos(owner, pfloId),
-      create: (newPortfolio)     => makeFakePflo(newPortfolio),
-      update: (fltr, updates)    => updateFakePflo(fltr, updates),
-      deletePortfolio: ()        => deleteFakePortfolio(),
-      addHolding: (fltr, hldg)   => updateFakePflo(fltr, { addHldg: hldg }),
-      updateHolding: (fltr, qty) => updateFakePflo(fltr, { updateHldg: qty }),
-      deleteHolding: (fltr)      => updateFakePflo(fltr, { delete: true }),
-      hasHolding: (owner, pflo, ticker) => owner && pflo && ticker === 'MSFT',
+      getAll          : (owner) => getFakePflos(owner),
+      getOne          : (owner, pfloId) => getFakePflos(owner, pfloId),
+      create          : (newPortfolio) => makeFakePflo(newPortfolio),
+      update          : (fltr, updates) => updateFakePflo(fltr, updates),
+      deletePortfolio : () => deleteFakePortfolio(),
+      addHolding      : (fltr, hldg) => updateFakePflo(fltr, { addHldg : hldg }),
+      updateHolding   : (fltr, qty) => updateFakePflo(fltr, { updateHldg : qty }),
+      deleteHolding   : (fltr) => updateFakePflo(fltr, { delete : true }),
+      hasHolding      : (owner, pflo, ticker) => owner && pflo && ticker === 'MSFT'
     });
 
     this.controller = require('../../controllers/portfolios');
@@ -159,7 +159,7 @@ describe('Portfolios controller', function() {
   it('.getAll() should return array of user\'s portfolios', async function() {
     req.user = { _id : pfloOwner1 };
     const { resData } = await this.controller.getAll(req, res);
-    
+
     expect(resData.status).to.eql(200);
     expect(resData.json).to.be.a('array');
     expect(resData.json[0].owner).to.eql(pfloOwner1);
@@ -170,17 +170,17 @@ describe('Portfolios controller', function() {
     req.user   = { _id : pfloOwner1 };
     req.params = {  id : pfloID1 };
     const { resData } = await this.controller.getOne(req, res);
-    
+
     expect(resData.status).to.eql(200);
     expect(resData.json.owner).to.eql(pfloOwner1);
   });
-  
-  
+
+
   it('.create() should return a newly created portfolio', async function() {
     req.user = { _id : pfloOwner1 };
-    req.body = { name: 'test portfolio', notes: 'test notes' };
+    req.body = { name : 'test portfolio', notes : 'test notes' };
     const { resData } = await this.controller.create(req, res);
-    
+
     expect(resData.status).to.eql(200);
     expect(resData.json.owner).to.eql(pfloOwner1);
     expect(resData.json.name).to.eql('test portfolio');
@@ -191,7 +191,7 @@ describe('Portfolios controller', function() {
   it('.update() should return an updated portfolio', async function() {
     req.user   = { _id : pfloOwner1 };
     req.params = {  id : pfloID1 };
-    req.body   = { name: 'updated name', notes: 'updated notes' };
+    req.body   = { name : 'updated name', notes : 'updated notes' };
     const { resData } = await this.controller.update(req, res);
 
     expect(resData.status).to.eql(200);
@@ -207,25 +207,25 @@ describe('Portfolios controller', function() {
     const { resData } = await this.controller.deletePortfolio(req, res);
 
     expect(resData.status).to.eql(200);
-    expect(resData.json.result).to.deep.eql({ ok: 1, n: 1 });
+    expect(resData.json.result).to.deep.eql({ ok : 1, n : 1 });
   });
 
 
   it('.addHolding() should return portfolio w/new holding', async function() {
     req.user   = { _id : pfloOwner1 };
     req.params = {  id : pfloID1 };
-    req.body   = { ticker: 'ZZZZZ', qty: 666 };
+    req.body   = { ticker : 'ZZZZ', qty : 666 };
     const { resData } = await this.controller.addHolding(req, res);
 
     expect(resData.status).to.eql(200);
-    expect(resData.json.holdings).to.deep.include({ticker: 'ZZZZZ', qty: 666});
+    expect(resData.json.holdings).to.deep.include({ticker : 'ZZZZ', qty : 666});
   });
 
 
   it('.addHolding() should error if portfolio has holding', async function() {
     req.user   = { _id : pfloOwner1 };
     req.params = {  id : pfloID1 };
-    req.body   = { ticker: 'MSFT', qty: 666 };
+    req.body   = { ticker : 'MSFT', qty : 666 };
     const { resData } = await this.controller.addHolding(req, res);
 
     expect(resData.status).to.eql(403);
@@ -237,8 +237,8 @@ describe('Portfolios controller', function() {
 
   it('.updateHolding() should return updated portfolio', async function() {
     req.user   = { _id : pfloOwner1 };
-    req.params = { pfloId : pfloID1, hldgId: pflo1hlngId };
-    req.body   = { qty: 999999 };
+    req.params = { pfloId : pfloID1, hldgId : pflo1hlngId };
+    req.body   = { qty : 999999 };
     const { resData } = await this.controller.updateHolding(req, res);
 
     expect(resData.status).to.eql(200);
@@ -252,7 +252,7 @@ describe('Portfolios controller', function() {
 
   it('.deleteHolding() should return updated portfolio', async function() {
     req.user   = { _id : pfloOwner1 };
-    req.params = { pfloId : pfloID1, hldgId: pflo1hlngId };
+    req.params = { pfloId : pfloID1, hldgId : pflo1hlngId };
     const { resData } = await this.controller.deleteHolding(req, res);
 
     expect(resData.status).to.eql(200);

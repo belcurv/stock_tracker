@@ -26,7 +26,7 @@ const usernameExists = (username) => {
   const collection = db.get().collection('users');
 
   const target = { username };
-  
+
   return collection
     .find(target)
     .count()
@@ -52,10 +52,10 @@ const createUser = async ({ username, pwHash }) => {
   const now = Date.now();
 
   const newUser = {
-    username: sanitize(username),
-    password: sanitize(pwHash),
-    createdAt: now,
-    updatedAt: now
+    username  : sanitize(username),
+    password  : sanitize(pwHash),
+    createdAt : now,
+    updatedAt : now
   };
 
   return collection.insertOne(newUser)
@@ -78,10 +78,10 @@ const getUser = async (username) => {
 
   const collection = db.get().collection('users');
 
-  const target = { username: sanitize(username) };
+  const target = { username : sanitize(username) };
 
   return collection.findOne(target);
- 
+
 };
 
 

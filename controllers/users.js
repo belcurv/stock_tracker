@@ -15,7 +15,7 @@ const router = require('express').Router();
  * Returns: JSON success message
 */
 router.delete('/users/:id', (req, res) => {
-  res.status(200).json({ message: 'Hello from the api/users route'});
+  res.status(200).json({ message : 'Hello from the api/users route'});
 });
 
 

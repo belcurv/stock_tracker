@@ -16,6 +16,6 @@ module.exports = (_id, schemaType) => {
   if (typeof _id !== 'string' || !rex.test(_id)) {
     throw new Error(`Validation Error: Invalid "${schemaType}": ${_id}`);
   }
-  
+
   return true;
 };

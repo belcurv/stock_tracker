@@ -5,13 +5,19 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-  const token = req.headers.authorization;
-  const secret = process.env.JWT_SECRET;
+  const secret     = process.env.JWT_SECRET;
+  const authHeader = req.headers.authorization;
+  const headerRex  = /^Bearer\s{1}[\w\-.]+$/;
 
-  // fail if missing required pieces
-  if (!token || !secret) {
+  if (!authHeader) {
     return next(new Error('Missing components for JWT verification'));
   }
+
+  if (!headerRex.test(authHeader)) {
+    return next(new Error('Expected Authorization header: "Bearer <token>"'));
+  }
+
+  const token = authHeader.split(' ')[1];
 
   jwt.verify(token, secret, (err, decoded) => {
     if (err) {
