@@ -1,4 +1,3 @@
-// const validateUsernames = require('./validateUsernames');
 const validateEmails    = require('./validateEmails');
 const validatePwHashes  = require('./validatePwHashes');
 const validateObjectIds = require('./validateObjectIds');

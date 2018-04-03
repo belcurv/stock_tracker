@@ -7,8 +7,8 @@ const jwt = require('jsonwebtoken');
 */
 module.exports = async (payload) => {
   return await jwt.sign(
-    { user : payload },            // payload
+    { user : payload },           // payload
     process.env.JWT_SECRET,       // secret
-    { expiresIn : '7d' }           // options
+    { expiresIn : '7d' }          // options
   );
 };
