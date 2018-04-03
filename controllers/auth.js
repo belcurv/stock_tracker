@@ -13,12 +13,12 @@ const Users       = require('../models/users');
  * New user registration.
  * Example: POST >> /auth/register
  * Secured: No
- * Expects: username & passwords from http POST request body
+ * Expects: email & passwords from http POST request body
  * Returns: object w/success {Boolean} and token {String}
 */
 const register = async (req, res, next) => {
 
-  if (!req.body.username || !req.body.password1 || !req.body.password2) {
+  if (!req.body.email || !req.body.password1 || !req.body.password2) {
     return res.status(400).json({ message : 'Missing required fields' });
   }
 
@@ -27,15 +27,15 @@ const register = async (req, res, next) => {
   }
 
   const newUser = {
-    username : req.body.username
+    email : req.body.email
   };
 
   const password = req.body.password1;
 
-  // check for existing user with same username
-  const user = await Users.usernameExists(newUser.username);
+  // check for existing user with same email
+  const user = await Users.userExists(newUser.email);
   if (user) {
-    return res.status(500).json({ message : 'Username already taken' });
+    return res.status(500).json({ message : 'email already taken' });
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -43,8 +43,8 @@ const register = async (req, res, next) => {
 
   return Users.createUser(newUser)
     .then(result => generateJwt({
-      username : result.username,
-      _id      : result._id
+      email : result.email,
+      _id   : result._id
     }))
     .then(token => res.status(200).json({
       success : true,
@@ -59,21 +59,21 @@ const register = async (req, res, next) => {
  * User login.
  * Example: POST >> /auth/login
  * Secured: No
- * Expects: username and password from http POST request body
+ * Expects: email and password from http POST request body
  * Returns: object w/success {Boolean} and token {String}
 */
 const login = async (req, res, next) => {
 
-  if (!req.body.username || !req.body.password) {
+  if (!req.body.email || !req.body.password) {
     return res.status(500).json({ message : 'Missing required fields' });
   }
 
-  const username = req.body.username;
+  const email = req.body.email;
   const password = req.body.password;
 
-  const user = await Users.getUser(username);
+  const user = await Users.getUser(email);
   if (!user) {
-    return res.status(404).json({ message : 'No user with that username' });
+    return res.status(404).json({ message : 'No user with that email' });
   }
 
   const valid = await bcrypt.compare(password, user.password);
@@ -81,7 +81,7 @@ const login = async (req, res, next) => {
     return res.status(500).json({ message : 'Invalid login credentials' });
   }
 
-  return generateJwt({_id : user._id, username : user.username})
+  return generateJwt({_id : user._id, email : user.email})
     .then(token => res.status(200).json({
       success : true,
       token   : token
