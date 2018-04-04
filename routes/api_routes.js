@@ -5,7 +5,7 @@
 const router        = require('express').Router();
 const verifyJWT     = require('../middleware/verifyJWT');
 const porfoliosCtrl = require('../controllers/portfolios');
-// const usersCtrl     = require('../controllers/users');  <<< TODO
+const usersCtrl     = require('../controllers/users');
 
 /* ============================== MIDDLEWARE =============================== */
 
@@ -35,6 +35,11 @@ router.route('/portfolios/:id/holdings')
 router.route('/portfolios/:pfloId/holdings/:hldgId')
   .put(porfoliosCtrl.updateHolding)
   .delete(porfoliosCtrl.deleteHolding);
+
+
+router.route('/users/:id')
+  .get(usersCtrl.getOne)
+  .delete(usersCtrl.deleteUser);
 
 
 /* ================================ EXPORTS ================================ */
