@@ -33,7 +33,7 @@ const register = async (req, res, next) => {
   const password = req.body.password1;
 
   // check for existing user with same email
-  const user = await Users.userExists(newUser.email);
+  const user = await Users.exists(newUser.email);
   if (user) {
     return res.status(500).json({ message : 'email already taken' });
   }
@@ -41,7 +41,7 @@ const register = async (req, res, next) => {
   const salt = await bcrypt.genSalt(10);
   newUser.pwHash = await bcrypt.hash(password, salt);
 
-  return Users.createUser(newUser)
+  return Users.create(newUser)
     .then(result => generateJwt({
       email : result.email,
       _id   : result._id
@@ -71,7 +71,7 @@ const login = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  const user = await Users.getUser(email);
+  const user = await Users.findByEmail(email);
   if (!user) {
     return res.status(404).json({ message : 'No user with that email' });
   }

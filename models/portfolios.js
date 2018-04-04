@@ -138,7 +138,7 @@ const update = ({ owner, pfloId }, { name, notes }) => {
  * Delete a user's portfolio
  * @param    {String}   owner    User _id
  * @param    {String}   pfloId   Portfolio _id
- * @returns  {Object}            Promise
+ * @returns  {Object}            Promise + delete operation result object
 */
 const deletePortfolio = (owner, pfloId) => {
 
