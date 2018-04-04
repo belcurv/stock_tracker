@@ -14,12 +14,12 @@ let password;
 
 /* ============================ UTILITY METHODS ============================ */
 
-const makeMockUser = (username, pwHash) => {
+const makeMockUser = (email, pwHash) => {
   if (!password) { password = pwHash; }
   return Promise.resolve({
     _id       : '101010101010101010101010',
+    email     : email,
     password  : password,
-    username  : username,
     createdAt : Date.now(),
     updatedAt : Date.now()
   });
@@ -57,9 +57,9 @@ describe('Authentication controller', function() {
     });
 
     mockery.registerMock('../models/users', {
-      usernameExists : (uname) => uname === 'biff',
-      createUser     : ({uname, pwHash}) => makeMockUser(uname, pwHash),
-      getUser        : (uname) => uname === 'biff' ? makeMockUser(uname) : null
+      exists      : (email) => email === 'ok@yay.io',
+      create      : ({ email, pwHash }) => makeMockUser(email, pwHash),
+      findByEmail : (email) => email === 'ok@yay.io' ? makeMockUser(email) : null
     });
 
     this.controller = require('../../controllers/auth');
@@ -80,7 +80,7 @@ describe('Authentication controller', function() {
 
   it('.register() should return valid JWT on success', async function() {
     req.body = {
-      username  : 'biff2',
+      email     : 'im.valid@yay.io',
       password1 : 'testpassword',
       password2 : 'testpassword'
     };
@@ -91,20 +91,20 @@ describe('Authentication controller', function() {
   });
 
 
-  it('.register() should return error if username taken', async function() {
+  it('.register() should return error if user exists', async function() {
     req.body = {
-      username  : 'biff',
+      email     : 'ok@yay.io',
       password1 : 'testpassword',
       password2 : 'testpassword'
     };
     const { resData } = await this.controller.register(req, res);
 
     expect(resData.status).to.eql(500);
-    expect(resData.json.message).to.eql('Username already taken');
+    expect(resData.json.message).to.eql('email already taken');
   });
 
 
-  it('.register() should return error if username omitted', async function() {
+  it('.register() should return error if email omitted', async function() {
     req.body = {
       password1 : 'testpassword',
       password2 : 'testpassword'
@@ -118,7 +118,7 @@ describe('Authentication controller', function() {
 
   it('.register() should return error if password omitted', async function() {
     req.body = {
-      username  : 'biff2',
+      email     : 'ok@yay.io',
       password2 : 'testpassword'
     };
     const { resData } = await this.controller.register(req, res);
@@ -130,7 +130,7 @@ describe('Authentication controller', function() {
 
   it('.register() should return error if passwords !match', async function() {
     req.body = {
-      username  : 'biff2',
+      email     : 'ok@yay.io',
       password1 : 'testpassword',
       password2 : 'doesntmatch'
     };
@@ -143,7 +143,7 @@ describe('Authentication controller', function() {
 
   it('.login() should return valid JWT on success', async function() {
     req.body = {
-      username : 'biff',
+      email    : 'ok@yay.io',
       password : 'testpassword'
     };
     const { resData } = await this.controller.login(req, res);
@@ -153,7 +153,7 @@ describe('Authentication controller', function() {
   });
 
 
-  it('.login() should return error if username omitted', async function() {
+  it('.login() should return error if email omitted', async function() {
     req.body = {
       password : 'testpassword'
     };
@@ -166,7 +166,7 @@ describe('Authentication controller', function() {
 
   it('.login() should return error if password omitted', async function() {
     req.body = {
-      username : 'biff'
+      email : 'ok@yay.io',
     };
     const { resData } = await this.controller.login(req, res);
 
@@ -177,19 +177,19 @@ describe('Authentication controller', function() {
 
   it('.login() should return error if user not found', async function() {
     req.body = {
-      username : 'biffbraff',
+      email    : 'null@example.com',
       password : 'testpassword'
     };
     const { resData } = await this.controller.login(req, res);
 
     expect(resData.status).to.eql(404);
-    expect(resData.json.message).to.eql('No user with that username');
+    expect(resData.json.message).to.eql('No user with that email');
   });
 
 
   it('.login() should return error from invalid password', async function() {
     req.body = {
-      username : 'biff',
+      email    : 'ok@yay.io',
       password : 'invalidpass'
     };
     const { resData } = await this.controller.login(req, res);

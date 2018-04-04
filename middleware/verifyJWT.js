@@ -24,7 +24,7 @@ module.exports = (req, res, next) => {
       return next(new Error(err.message));
     }
 
-    if (decoded.user._id && decoded.user.username) {
+    if (decoded.user._id && decoded.user.email) {
       // OK. Set req.user
       req.user = decoded.user;
       next();
