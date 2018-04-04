@@ -55,9 +55,7 @@ describe('Users controller', function() {
 
     mockery.registerMock('../models/users', {
       findById  : (id) => id === testId ? makeMockUser(id) : null,
-      deleteOne : (id) => id === testId ?
-        Promise.resolve({ deletedCount : 1 }) :
-        Promise.resolve({ deletedCount : 0 })
+      deleteOne : (id) => Promise.resolve({deletedCount : id === testId ? 1 : 0})
     });
 
     this.controller = require('../../controllers/users');
