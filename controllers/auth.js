@@ -39,7 +39,7 @@ const register = async (req, res, next) => {
   const salt = await bcrypt.genSalt(10);
   newUser.pwHash = await bcrypt.hash(req.body.password1, salt);
 
-  return Users.createUser(newUser)
+  return Users.create(newUser)
     .then(({ email, _id }) => generateJwt({ email, _id }))
     .then(token => res.status(200).json({ success : true, token }))
     .catch(err  => next(err));
