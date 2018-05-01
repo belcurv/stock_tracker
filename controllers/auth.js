@@ -27,7 +27,7 @@ const register = async (req, res, next) => {
   }
 
   // check for existing user with same email
-  const user = await Users.userExists(req.body.email);
+  const user = await Users.exists(req.body.email);
   if (user) {
     return res.status(500).json({ message : 'email already taken' });
   }
@@ -63,7 +63,7 @@ const login = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  const user = await Users.getUser(email);
+  const user = await Users.findByEmail(email);
   if (!user) {
     return res.status(404).json({ message : 'No user with that email' });
   }

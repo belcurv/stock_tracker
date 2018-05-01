@@ -9,6 +9,7 @@ const validateQty       = require('./validateQty');
 const defaultSchema = {
   email  : validateEmails,
   pwHash : validatePwHashes,
+  _id    : validateObjectIds,
   owner  : validateObjectIds,
   pfloId : validateObjectIds,
   hldgId : validateObjectIds,

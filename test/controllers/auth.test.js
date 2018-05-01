@@ -57,9 +57,9 @@ describe('Authentication controller', function() {
     });
 
     mockery.registerMock('../models/users', {
-      userExists : (email) => email === 'ok@yay.io',
-      createUser : ({ email, pwHash }) => makeMockUser(email, pwHash),
-      getUser    : (email) => email === 'ok@yay.io' ? makeMockUser(email) : null
+      exists      : (email) => email === 'ok@yay.io',
+      create      : ({ email, pwHash }) => makeMockUser(email, pwHash),
+      findByEmail : (email) => email === 'ok@yay.io' ? makeMockUser(email) : null
     });
 
     this.controller = require('../../controllers/auth');
