@@ -26,30 +26,22 @@ const register = async (req, res, next) => {
     return res.status(400).json({ message : 'Passwords must match' });
   }
 
-  const newUser = {
-    email : req.body.email
-  };
-
-  const password = req.body.password1;
-
   // check for existing user with same email
-  const user = await Users.exists(newUser.email);
+  const user = await Users.exists(req.body.email);
   if (user) {
     return res.status(500).json({ message : 'email already taken' });
   }
 
+  const newUser = {
+    email : req.body.email
+  };
+
   const salt = await bcrypt.genSalt(10);
-  newUser.pwHash = await bcrypt.hash(password, salt);
+  newUser.pwHash = await bcrypt.hash(req.body.password1, salt);
 
   return Users.create(newUser)
-    .then(result => generateJwt({
-      email : result.email,
-      _id   : result._id
-    }))
-    .then(token => res.status(200).json({
-      success : true,
-      token   : token
-    }))
+    .then(({ email, _id }) => generateJwt({ email, _id }))
+    .then(token => res.status(200).json({ success : true, token }))
     .catch(err  => next(err));
 
 };
@@ -82,10 +74,7 @@ const login = async (req, res, next) => {
   }
 
   return generateJwt({_id : user._id, email : user.email})
-    .then(token => res.status(200).json({
-      success : true,
-      token   : token
-    }))
+    .then(token => res.status(200).json({ success : true, token }))
     .catch(err  => next(err));
 
 };
