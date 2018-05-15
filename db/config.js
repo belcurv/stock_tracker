@@ -13,8 +13,8 @@ module.exports = {
   },
 
   production : {
-    url    : null, // doesn't exist yet!
-    dbName : null
+    url    : `mongodb://${process.env.PROD_DB_USER}:${process.env.PROD_DB_PASS}@${process.env.PROD_DB_URL}:${process.env.PROD_DB_PORT}`,
+    dbName : process.env.PROD_DB_NAME
   }
 
 };
